@@ -1,0 +1,102 @@
+Explicación de cada carpeta (qué hace y por qué)
+🔹 model
+
+Qué es:
+Representa el dominio del sistema.
+
+Qué contiene:
+
+entidades JPA (Cliente, Turno, Profesional)
+
+
+Por qué así:
+Refleja conceptos reales del negocio, no detalles técnicos.
+
+🔹 repository
+
+Qué es:
+Capa de persistencia.
+
+Qué contiene:
+
+interfaces que extienden JpaRepository
+
+Por qué así:
+Aísla la base de datos del resto del sistema.
+Si mañana cambia PostgreSQL por otra DB, el impacto es mínimo.  ES lo que acaba de pasar, cambie de PostgreSQL a H2 y solo cambie las config en aplication propeties
+
+🔹 service
+
+Qué es:
+La lógica de negocio del sistema.
+
+Qué contiene:
+
+validaciones
+
+reglas (no solapar turnos, horarios, estados)
+
+orquestación de repositorios
+
+Por qué así:
+Centraliza decisiones del negocio y evita lógica duplicada en controllers.
+
+🔹 controller
+
+Qué es:
+La puerta de entrada al sistema (API REST).
+
+Qué contiene:
+
+endpoints HTTP
+
+delegación al service
+
+manejo de requests y responses
+
+Por qué así:
+El controller no decide nada, solo coordina.
+
+🔹 dto
+
+Qué es:
+Objetos de transferencia de datos.
+
+Qué contiene:
+
+request DTO
+
+response DTO
+
+Por qué así:
+Evita exponer entidades directamente y desacopla la API del modelo interno.
+
+🔹 exception
+
+Qué es:
+Gestión centralizada de errores.
+
+Qué contiene:
+
+excepciones custom
+
+handlers (@ControllerAdvice)
+
+Por qué así:
+Errores claros, consistentes y reutilizables.
+
+🔹 config
+
+Qué es:
+Configuraciones del sistema.
+
+Qué contiene:
+
+CORS
+
+Swagger
+
+mapeos especiales
+
+Por qué así:
+Mantiene las configuraciones separadas del dominio.

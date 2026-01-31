@@ -1,0 +1,21 @@
+El proyecto está implementado como un monolito por capas en Spring Boot, priorizando claridad y reglas de negocio. La separación de responsabilidades permite, en caso de necesidad, evolucionar hacia una arquitectura de microservicios.
+
+¿Podría esto evolucionar a microservicios?
+
+si
+
+Gracias a que:
+
+hay capas claras
+
+dominio bien definido
+
+responsabilidades separadas
+
+después por ejemplo puedo decir:
+
+“Extraigo Turnos como microservicio”
+
+sin romper todo.
+
+Esto es una muy buena base para escalar.

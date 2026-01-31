@@ -1,0 +1,39 @@
+dependencias elegidas
+🔹 Spring Web
+Permite exponer el sistema como una API REST, que es el estándar para comunicación entre sistemas.
+
+Qué aporta al proyecto:
+Endpoints HTTP (GET, POST, PUT, DELETE)
+Separación clara entre cliente y servidor
+Posibilidad de integrar frontend, mobile u otros sistemas en el futuro
+
+ Decisión alineada a un backend desacoplado.
+
+🔹 Spring Data JPA
+Simplifica el acceso a la base de datos usando un modelo orientado a objetos.
+Qué aporta al proyecto: Mapeo de entidades a tablas, Abstracción del SQL, Repositorios reutilizables, Menos código repetido
+
+ Permite enfocarse en la lógica de negocio, no en consultas básicas.
+
+🔹 PostgreSQL Driver
+PostgreSQL es una base de datos robusta y ampliamente usada en entornos productivos.
+
+Qué aporta al proyecto:	Integridad de datos, Soporte a relaciones y transacciones, Escalabilidad
+
+Elección coherente con un sistema de gestión real.
+
+🔹 Validation (Jakarta Validation)
+Permite validar datos de entrada antes de ejecutar la lógica de negocio.
+
+Qué aporta al proyecto: Evita datos inválidos, Reglas declarativas (@NotNull, @Future, etc.), Respuestas claras al cliente
+
+Mejora la calidad y confiabilidad del sistema.
+
+🔹 Lombok
+Reduce el código repetitivo sin afectar la lógica del sistema.
+
+Qué aporta al proyecto: Menos boilerplate, Código más legible, Mantenimiento más simple
+
+Decisión pragmática, enfocada en productividad.
+
+Las dependencias fueron seleccionadas para construir un backend REST robusto, desacoplado y orientado a reglas de negocio, utilizando tecnologías comunes en entornos productivos, priorizando claridad, mantenibilidad y escalabilidad.

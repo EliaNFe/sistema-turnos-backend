@@ -1,0 +1,89 @@
+ [Controller: /turnos POST]
+                        |
+                        v
+           [TurnoService.crearTurno(dto)]
+                        |
+      --------------------------------------
+      |                                    |
+[Buscar Profesional]               [Buscar Cliente]
+      |                                    |
+      |---No existe?--> Excepción         |---No existe?--> Excepción
+      |                                    |
+      v                                    v
+[Validar conflicto fecha+hora] ---> Existe? ---> Excepción "Ya hay turno"
+                        |
+                        v
+                 [Crear Turno]
+                        |
+                        v
+                 [Guardar Turno]
+                        |
+                        v
+                  [Devolver DTO]
+
+
+           [Controller: /turnos/{id} PUT] (Actualizar)
+                        |
+                        v
+           [TurnoService.actualizarTurno(dto)]
+                        |
+      -------------------------------------------------
+      |                                               |
+  Cambiar Profesional?                             Cambiar fecha/hora?
+      |                                               |
+      v                                               v
+  Buscar profesional                               Validar conflicto
+  No existe? -> Excepción                           Existe? -> Excepción
+      |
+      v
+Actualizar estado (opcional)
+      |
+      v
+[Guardar cambios]
+      |
+      v
+[Devolver DTO]
+
+
+           [Controller: /turnos/{id}/cancelar]
+                        |
+                        v
+           [TurnoService.cancelarTurno(id)]
+                        |
+      [Validar turno pendiente?]
+                |
+       No -> Excepción
+                |
+                v
+        Cambiar estado -> CANCELADO
+                |
+                v
+          [Devolver DTO]
+
+
+           [Controller: /turnos/profesional/{id}?fecha&hora]
+                        |
+                        v
+           [TurnoService.agendaDelProfesional]
+                        |
+      Hora = null? ------------------ Sí --> Buscar todos los turnos del día
+            | No
+            v
+    Buscar turno exacto por fecha+hora
+                        |
+                        v
+                [Devolver lista DTO]
+
+
+           [Controller: /turnos/cliente/{id}?fecha]
+                        |
+                        v
+           [TurnoService.agendaDelCliente]
+                        |
+      Fecha = null? ------------------ Sí --> Buscar todos los turnos del cliente
+            | No
+            v
+    Buscar turnos del cliente en la fecha
+                        |
+                        v
+                [Devolver lista DTO]

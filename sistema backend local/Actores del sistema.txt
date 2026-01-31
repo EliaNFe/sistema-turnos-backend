@@ -1,0 +1,72 @@
+🔹 Actor 1: Administrador
+
+Es quien gestiona el sistema.
+
+Puede:
+
+crear / editar / eliminar profesionales
+
+crear / editar / eliminar clientes
+
+ver todos los turnos
+
+confirmar o cancelar turnos
+
+Es como la recepcionista o el encargado.
+
+🔹	Actor 2: Profesional
+
+Es quien atiende los turnos.
+
+Puede:
+
+ver sus turnos
+
+consultar agenda por fecha
+
+ No administra nada, solo consulta.
+
+
+📋 Casos de uso principales
+🗂 Gestión de Clientes
+
+Alta de cliente
+
+Modificación de cliente
+
+Baja de cliente
+
+Listado de clientes
+
+🗂 Gestión de Profesionales
+
+Alta de profesional
+
+Modificación de profesional
+
+Definir horario de atención
+
+Listado de profesionales
+
+📆 Gestión de Turnos (el corazón del sistema)
+
+Crear turno
+
+Confirmar turno
+
+Cancelar turno
+
+Listar turnos por: Fecha, profesional, estado
+
+
+Reglas de negocio
+
+Un turno no puede superponerse con otro del mismo profesional
+Un turno debe estar dentro del horario del profesional
+No se pueden crear turnos en fechas pasadas
+Un turno cancelado no se elimina
+Un turno confirmado no puede modificarse (opcional, pero suma)
+
+
+
+
