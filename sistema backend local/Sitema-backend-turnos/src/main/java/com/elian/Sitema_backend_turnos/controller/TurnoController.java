@@ -5,8 +5,11 @@ import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.model.EstadoTurno;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.cert.TrustAnchor;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -22,8 +25,9 @@ public class TurnoController {
     }
 
     @PostMapping
-    public TurnoDTO crear(@RequestBody CrearTurnoDTO dto) {
-        return turnoService.crearTurno(dto);
+    public ResponseEntity<TurnoDTO> crear(@Valid @RequestBody CrearTurnoDTO dto) {
+        TurnoDTO TurnoCreado = turnoService.crearTurno(dto);
+        return ResponseEntity.ok(TurnoCreado);
     }
 
     @GetMapping("/{id}")

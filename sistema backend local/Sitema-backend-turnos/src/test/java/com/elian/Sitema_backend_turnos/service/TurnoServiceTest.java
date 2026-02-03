@@ -73,6 +73,8 @@ class TurnoServiceTest {
                 profesionalId,
                 LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0)
+               // LocalDate.of(2024, 2, 28),        // para probar que no se puede agregar en fechas pasadas
+                //LocalTime.of(10, 0)
         );
 
         TurnoDTO creado = turnoService.crearTurno(dto);

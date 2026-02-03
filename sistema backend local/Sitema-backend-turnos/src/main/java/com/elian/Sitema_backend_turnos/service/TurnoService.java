@@ -42,6 +42,15 @@ public class TurnoService {
 
     @Transactional
     public TurnoDTO crearTurno(CrearTurnoDTO dto) {
+
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
+        if (dto.fecha().isBefore(hoy) ||
+                (dto.fecha().isEqual(hoy) && dto.hora().isBefore(ahora))) {
+            throw new IllegalStateException("No se pueden crear turnos en el pasado");
+        }
+
         Profesional profesional = profesionalRepository.findById(dto.profesionalId())
                 .orElseThrow(() -> new ProfesionalNotFoundException(dto.profesionalId()));
 
