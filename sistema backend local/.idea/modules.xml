@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/sistema backend local.iml" filepath="$PROJECT_DIR$/.idea/sistema backend local.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Sistema de turnos.iml" filepath="$PROJECT_DIR$/Sistema de turnos.iml" />
     </modules>
   </component>
 </project>

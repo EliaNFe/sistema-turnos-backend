@@ -6,7 +6,9 @@ import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.exception.ClientenotFoundException;
 import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
 import com.elian.Sitema_backend_turnos.exception.TurnoNotFoundException;
+import com.elian.Sitema_backend_turnos.model.Cliente;
 import com.elian.Sitema_backend_turnos.model.EstadoTurno;
+import com.elian.Sitema_backend_turnos.model.Profesional;
 import com.elian.Sitema_backend_turnos.model.Turno;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
@@ -44,10 +46,25 @@ class TurnoServiceTest {
 
     @BeforeEach
     void setup() {
-        // Asumimos que hay un cliente y un profesional con estos IDs en la base de test
-        clienteId = 1L;
-        profesionalId = 1L;
+        Cliente cliente = new Cliente();
+        cliente.setNombre("Juan");
+        cliente.setApellido("bananashe");
+        cliente.setDocumento("8888888");
+        cliente.setTelefono("3811234567");
+        cliente.setEmail("juan@test.com");
+
+        cliente = clienteRepository.save(cliente);
+        clienteId = cliente.getId();
+
+        Profesional profesional = new Profesional();
+        profesional.setNombre("Ana");
+        profesional.setEspecialidad("Anashe bananashe");
+
+        profesional = profesionalRepository.save(profesional);
+        profesionalId = profesional.getId();
     }
+
+
 
     @Test
     void testCrearTurno() {
