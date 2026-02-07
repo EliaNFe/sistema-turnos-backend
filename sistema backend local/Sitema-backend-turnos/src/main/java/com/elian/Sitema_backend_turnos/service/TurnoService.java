@@ -14,6 +14,7 @@ import com.elian.Sitema_backend_turnos.model.Turno;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
 import com.elian.Sitema_backend_turnos.repository.TurnoRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,7 @@ public class TurnoService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public TurnoDTO crearTurno(CrearTurnoDTO dto) {
 
         LocalDate hoy = LocalDate.now();
@@ -77,6 +79,17 @@ public class TurnoService {
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")                      //Este es para el profesional que es solo para cambiar estados, la responsabilidad de cambiar todo de un turno se lo delego a admin
+    public TurnoDTO actualizarEstado(Long turnoId, EstadoTurno nuevoEstado) {
+
+        Turno turno = turnoRepository.findById(turnoId)
+                .orElseThrow(() -> new TurnoNotFoundException(turnoId));
+
+        turno.setEstado(nuevoEstado);
+
+        return TurnoMapper.toDTO(turnoRepository.save(turno));    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     public TurnoDTO actualizarTurno(Long turnoId, ActualizarTurnoDTO dto) {
         // Buscar el turno existente
         Turno turno = turnoRepository.findById(turnoId)
@@ -113,6 +126,7 @@ public class TurnoService {
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     public TurnoDTO buscarPorId(Long id) {
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
@@ -120,6 +134,7 @@ public class TurnoService {
         return TurnoMapper.toDTO(turno);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     public List<TurnoDTO> agendaDelProfesional(Long profesionalId, LocalDate fecha, LocalTime hora) {
         if (hora != null) {
             // Filtra por fecha y hora
@@ -137,7 +152,7 @@ public class TurnoService {
     }
 
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     public TurnoDTO cancelarTurno(Long id) {
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
@@ -154,6 +169,7 @@ public class TurnoService {
         return TurnoMapper.toDTO(turno);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     public List<TurnoDTO> agendaDelCliente(Long clienteId, LocalDate fecha, EstadoTurno estado) {
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ClientenotFoundException(clienteId));
