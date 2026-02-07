@@ -1,4 +1,0 @@
-Mismos pasos que para la versión web solo que aca cambia la Base de datos por una versión local como SQLlitte o H2
-y a su vez cambie el despliegue por uno local como javaFX para mostrar fronted local sin necesidad de una pagina
-
-En resumen BD embebida y UI local

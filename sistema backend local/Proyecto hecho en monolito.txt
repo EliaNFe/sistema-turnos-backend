@@ -1,10 +1,10 @@
 El proyecto está implementado como un monolito por capas en Spring Boot, priorizando claridad y reglas de negocio. La separación de responsabilidades permite, en caso de necesidad, evolucionar hacia una arquitectura de microservicios.
 
-¿Podría esto evolucionar a microservicios?
+Podría evolucionar a microservicios?
 
 si
 
-Gracias a que:
+ya que:
 
 hay capas claras
 

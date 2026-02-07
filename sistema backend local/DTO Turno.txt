@@ -1,7 +1,7 @@
-🧠 Explicación breve de las 3 clases
-1️⃣ CrearTurnoDTO
+Explicación breve de las 3 clases
+CrearTurnoDTO
 
-👉 Entrada del sistema
+ Entrada del sistema
 
 Representa qué datos necesito para crear un turno
 
@@ -9,13 +9,9 @@ Solo IDs + fecha/hora
 
 No expone entidades
 
-Pensalo como:
+TurnoDTO
 
-“Esto es lo mínimo que alguien debe mandar para sacar un turno”
-
-2️⃣ TurnoDTO
-
-👉 Salida del sistema
+Salida del sistema
 
 Representa cómo muestro un turno
 
@@ -23,30 +19,12 @@ Ya viene con nombres legibles
 
 Ideal para UI / frontend / mostrar
 
-Pensalo como:
+ TurnoMapper
 
-“Así quiero que el turno se vea”
-
-3️⃣ TurnoMapper
-
-👉 Traductor
+Traductor
 
 Convierte Turno (entidad) → TurnoDTO
 
 Evita lógica repetida
 
 Centraliza el formato de salida
-
-Pensalo como:
-
-“Este es el traductor entre base de datos y lo que ve el usuario”
-
-🧩 Por qué este diseño es bueno
-
-desacoplás capas
-
-podés cambiar UI sin tocar DB
-
-es escalable
-
-queda muy bien defendible en entrevistas
