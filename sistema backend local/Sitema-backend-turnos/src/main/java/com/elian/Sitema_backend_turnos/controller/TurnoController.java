@@ -1,5 +1,6 @@
 package com.elian.Sitema_backend_turnos.controller;
 
+import com.elian.Sitema_backend_turnos.dto.ActualizarEstadoDTO;
 import com.elian.Sitema_backend_turnos.dto.ActualizarTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
@@ -51,6 +52,14 @@ public class TurnoController {
             @RequestBody ActualizarTurnoDTO dto
     ) {
         return turnoService.actualizarTurno(id, dto);
+    }
+
+    @PatchMapping("/{id}/estado")
+    public TurnoDTO actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody @Valid ActualizarEstadoDTO dto) {
+
+        return turnoService.actualizarEstado(id, dto.getEstado());
     }
 
     @GetMapping("/cliente/{id}")

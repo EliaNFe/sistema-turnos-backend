@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
+@WithMockUser(roles = "ADMIN")
 class TurnoServiceTest {
 
     @Autowired
@@ -123,6 +125,27 @@ class TurnoServiceTest {
         TurnoDTO encontrado = turnoService.buscarPorId(creado.id());
         assertEquals(creado.id(), encontrado.id());
         assertEquals(creado.clienteId(), encontrado.clienteId());
+    }
+
+    @Test
+    void buscarTurnoInexistente() {
+        assertThrows(TurnoNotFoundException.class,
+                () -> turnoService.buscarPorId(999L));
+    }
+
+    @Test
+    void noDebeCrearTurnoDuplicado() {
+        CrearTurnoDTO dto = new CrearTurnoDTO(
+                clienteId,
+                profesionalId,
+                LocalDate.now().plusDays(1),
+                LocalTime.of(10, 0)
+        );
+
+        turnoService.crearTurno(dto);
+
+        assertThrows(RuntimeException.class,
+                () -> turnoService.crearTurno(dto));
     }
 
     @Test
