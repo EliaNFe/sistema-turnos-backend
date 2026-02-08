@@ -8,9 +8,8 @@ import com.elian.Sitema_backend_turnos.model.EstadoTurno;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.cert.TrustAnchor;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -26,6 +25,7 @@ public class TurnoController {
     }
 
     //  Crear turno
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<TurnoDTO> crear(
             @Valid @RequestBody CrearTurnoDTO dto) {
@@ -46,6 +46,7 @@ public class TurnoController {
     }
 
     //  Agenda profesional
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     @GetMapping("/profesional/{id}")
     public ResponseEntity<List<TurnoDTO>> agendaProfesional(
             @PathVariable Long id,
@@ -71,6 +72,7 @@ public class TurnoController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     @GetMapping("/mis-turnos")          //para el usuario que tiene como parametro un profesional, asi ese profesional puede ver sus turnos
     public List<TurnoDTO> misTurnos(
             @RequestParam LocalDate fecha) {
@@ -81,6 +83,7 @@ public class TurnoController {
 
 
     //  Actualizar turno completo (admin)
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<TurnoDTO> actualizar(
             @PathVariable Long id,
@@ -93,6 +96,7 @@ public class TurnoController {
     }
 
     //  Actualizar estado (profesional)
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     @PatchMapping("/{id}/estado")
     public ResponseEntity<TurnoDTO> actualizarEstado(
             @PathVariable Long id,
@@ -105,6 +109,7 @@ public class TurnoController {
     }
 
     //  Cancelar turno
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<Void> cancelar(
             @PathVariable Long id) {

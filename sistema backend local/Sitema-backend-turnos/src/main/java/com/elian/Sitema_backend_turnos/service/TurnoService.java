@@ -133,6 +133,7 @@ public class TurnoService {
         return TurnoMapper.toDTO(turno);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     public List<TurnoDTO> agendaDelProfesionalLogueado(
             LocalDate fecha) {
 
