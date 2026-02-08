@@ -140,7 +140,7 @@ public class TurnoService {
         Usuario usuario = securityService.usuarioLogueado();
 
         if (usuario.getRol() != Rol.PROFESIONAL)
-            throw new RuntimeException("No es profesional");
+            throw new RuntimeException("No Autorizado");
 
         Long profesionalId =
                 usuario.getProfesional().getId();
