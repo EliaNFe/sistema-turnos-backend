@@ -25,57 +25,84 @@ public class TurnoController {
         this.turnoService = turnoService;
     }
 
+    //  Crear turno
     @PostMapping
-    public ResponseEntity<TurnoDTO> crear(@Valid @RequestBody CrearTurnoDTO dto) {
-        TurnoDTO TurnoCreado = turnoService.crearTurno(dto);
-        return ResponseEntity.ok(TurnoCreado);
+    public ResponseEntity<TurnoDTO> crear(
+            @Valid @RequestBody CrearTurnoDTO dto) {
+
+        return ResponseEntity.ok(
+                turnoService.crearTurno(dto)
+        );
     }
 
+    //  Buscar por id
     @GetMapping("/{id}")
-    public TurnoDTO buscar(@PathVariable Long id) {
-        return turnoService.buscarPorId(id);
+    public ResponseEntity<TurnoDTO> buscar(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                turnoService.buscarPorId(id)
+        );
     }
 
+    //  Agenda profesional
     @GetMapping("/profesional/{id}")
-    public List<TurnoDTO> agenda(
+    public ResponseEntity<List<TurnoDTO>> agendaProfesional(
             @PathVariable Long id,
             @RequestParam LocalDate fecha,
-            @RequestParam(required = false) LocalTime hora,
-            @RequestParam(required = false) EstadoTurno estado
+            @RequestParam(required = false) LocalTime hora
     ) {
-        return turnoService.agendaDelProfesional(id, fecha, hora);
+
+        return ResponseEntity.ok(
+                turnoService.agendaDelProfesional(id, fecha, hora)
+        );
     }
 
-    @PutMapping("/{id}")
-    public TurnoDTO actualizar(
-            @PathVariable Long id,
-            @RequestBody ActualizarTurnoDTO dto
-    ) {
-        return turnoService.actualizarTurno(id, dto);
-    }
-
-    @PatchMapping("/{id}/estado")
-    public TurnoDTO actualizarEstado(
-            @PathVariable Long id,
-            @RequestBody @Valid ActualizarEstadoDTO dto) {
-
-        return turnoService.actualizarEstado(id, dto.getEstado());
-    }
-
+    //  Agenda cliente
     @GetMapping("/cliente/{id}")
-    public List<TurnoDTO> agendaCliente(
+    public ResponseEntity<List<TurnoDTO>> agendaCliente(
             @PathVariable Long id,
             @RequestParam(required = false) LocalDate fecha,
             @RequestParam(required = false) EstadoTurno estado
     ) {
-        return turnoService.agendaDelCliente(id, fecha, estado);
+
+        return ResponseEntity.ok(
+                turnoService.agendaDelCliente(id, fecha, estado)
+        );
     }
 
+    //  Actualizar turno completo (admin)
+    @PutMapping("/{id}")
+    public ResponseEntity<TurnoDTO> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ActualizarTurnoDTO dto
+    ) {
 
+        return ResponseEntity.ok(
+                turnoService.actualizarTurno(id, dto)
+        );
+    }
 
+    //  Actualizar estado (profesional)
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<TurnoDTO> actualizarEstado(
+            @PathVariable Long id,
+            @Valid @RequestBody ActualizarEstadoDTO dto
+    ) {
+
+        return ResponseEntity.ok(
+                turnoService.actualizarEstado(id, dto.getEstado())
+        );
+    }
+
+    //  Cancelar turno
     @PutMapping("/{id}/cancelar")
-    public void cancelar(@PathVariable Long id) {
+    public ResponseEntity<Void> cancelar(
+            @PathVariable Long id) {
+
         turnoService.cancelarTurno(id);
+        return ResponseEntity.noContent().build();
     }
 }
+
 

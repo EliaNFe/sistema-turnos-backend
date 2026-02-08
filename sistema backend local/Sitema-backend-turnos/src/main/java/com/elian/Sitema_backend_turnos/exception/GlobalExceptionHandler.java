@@ -2,6 +2,7 @@ package com.elian.Sitema_backend_turnos.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,41 +16,56 @@ public class GlobalExceptionHandler {
     // ========= Cliente =========
 
     @ExceptionHandler(ClientenotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleClienteNotFound(
+    public ResponseEntity<Map<String, Object>> handleCliente(
             ClientenotFoundException ex) {
 
-        return buildResponse("Cliente no encontrado", ex.getMessage(), HttpStatus.NOT_FOUND);
+        return build("Cliente no encontrado", ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    // ========= Profesional =========
+
+    @ExceptionHandler(ProfesionalNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleProfesional(
+            ProfesionalNotFoundException ex) {
+
+        return build("Profesional no encontrado", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     // ========= Turno =========
 
     @ExceptionHandler(TurnoNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleTurnoNotFound(
+    public ResponseEntity<Map<String, Object>> handleTurno(
             TurnoNotFoundException ex) {
 
-        return buildResponse("Turno no encontrado", ex.getMessage(), HttpStatus.NOT_FOUND);
+        return build("Turno no encontrado", ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     // ========= Validaciones =========
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(
+    public ResponseEntity<Map<String, Object>> handleIllegal(
             IllegalArgumentException ex) {
 
-        return buildResponse("Datos inválidos", ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return build("Datos inválidos", ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    // ========= Fallback =========
+    // ========= Error general =========
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
 
-        return buildResponse("Error interno", ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", "Error interno");
+        error.put("mensaje", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error);
     }
 
     // ========= Helper =========
 
-    private ResponseEntity<Map<String, Object>> buildResponse(
+    private ResponseEntity<Map<String, Object>> build(
             String error,
             String mensaje,
             HttpStatus status) {
@@ -63,4 +79,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(status).body(body);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
+
+        Map<String, Object> errores = new HashMap<>();
+
+        ex.getBindingResult()
+                .getFieldErrors()
+                .forEach(error ->
+                        errores.put(error.getField(), error.getDefaultMessage())
+                );
+
+        return ResponseEntity
+                .badRequest()
+                .body(errores);
+    }
 }
+
