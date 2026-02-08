@@ -14,6 +14,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Usuario {
 
+    @OneToOne
+    @JoinColumn(name = "profesional_id")
+    private Profesional profesional;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
