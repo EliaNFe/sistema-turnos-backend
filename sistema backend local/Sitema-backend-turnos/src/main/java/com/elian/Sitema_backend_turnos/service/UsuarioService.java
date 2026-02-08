@@ -20,7 +20,7 @@ public class UsuarioService {
 
     public Usuario crearUsuario(CrearUsuarioDTO dto) {
 
-        if (usuarioRepo.findByUsername(dto.username())) {
+        if (usuarioRepo.existsByUsername(dto.username())) {
             throw new RuntimeException("Usuario ya existe");
         }
 

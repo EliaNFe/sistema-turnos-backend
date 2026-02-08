@@ -7,10 +7,7 @@ import com.elian.Sitema_backend_turnos.exception.ClientenotFoundException;
 import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
 import com.elian.Sitema_backend_turnos.exception.TurnoNotFoundException;
 import com.elian.Sitema_backend_turnos.mapper.TurnoMapper;
-import com.elian.Sitema_backend_turnos.model.Cliente;
-import com.elian.Sitema_backend_turnos.model.EstadoTurno;
-import com.elian.Sitema_backend_turnos.model.Profesional;
-import com.elian.Sitema_backend_turnos.model.Turno;
+import com.elian.Sitema_backend_turnos.model.*;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
 import com.elian.Sitema_backend_turnos.repository.TurnoRepository;
@@ -30,15 +27,17 @@ public class TurnoService {
     private final TurnoRepository turnoRepository;
     private final ClienteRepository clienteRepository;
     private final ProfesionalRepository profesionalRepository;
+    private final SecurityService securityService;
 
     public TurnoService(
             TurnoRepository turnoRepository,
             ClienteRepository clienteRepository,
-            ProfesionalRepository profesionalRepository
+            ProfesionalRepository profesionalRepository, SecurityService securityService
     ) {
         this.turnoRepository = turnoRepository;
         this.clienteRepository = clienteRepository;
         this.profesionalRepository = profesionalRepository;
+        this.securityService = securityService;
     }
 
     @Transactional
@@ -132,6 +131,20 @@ public class TurnoService {
                 .orElseThrow(() -> new TurnoNotFoundException(id));
 
         return TurnoMapper.toDTO(turno);
+    }
+
+    public List<TurnoDTO> agendaDelProfesionalLogueado(
+            LocalDate fecha) {
+
+        Usuario usuario = securityService.usuarioLogueado();
+
+        if (usuario.getRol() != Rol.PROFESIONAL)
+            throw new RuntimeException("No es profesional");
+
+        Long profesionalId =
+                usuario.getProfesional().getId();
+
+        return agendaDelProfesional(profesionalId, fecha, null);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")

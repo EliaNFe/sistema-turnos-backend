@@ -71,6 +71,15 @@ public class TurnoController {
         );
     }
 
+    @GetMapping("/mis-turnos")          //para el usuario que tiene como parametro un profesional, asi ese profesional puede ver sus turnos
+    public List<TurnoDTO> misTurnos(
+            @RequestParam LocalDate fecha) {
+
+        return turnoService
+                .agendaDelProfesionalLogueado(fecha);
+    }
+
+
     //  Actualizar turno completo (admin)
     @PutMapping("/{id}")
     public ResponseEntity<TurnoDTO> actualizar(
