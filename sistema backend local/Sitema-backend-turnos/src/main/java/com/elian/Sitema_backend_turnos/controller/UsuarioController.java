@@ -20,9 +20,9 @@ public class UsuarioController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public Usuario crear(@RequestBody CrearUsuarioDTO dto) {
         return usuarioService.crearUsuario(dto);
     }
 }
+
 

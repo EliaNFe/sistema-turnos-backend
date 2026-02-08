@@ -1,5 +1,8 @@
 package com.elian.Sitema_backend_turnos.service;
 
+import com.elian.Sitema_backend_turnos.dto.ActualizarProfesionalDTO;
+import com.elian.Sitema_backend_turnos.dto.CrearProfesionalDTO;
+import com.elian.Sitema_backend_turnos.dto.ProfesionalDTO;
 import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
 import com.elian.Sitema_backend_turnos.model.Profesional;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
@@ -16,18 +19,19 @@ public class ProfesionalService {
         this.profesionalRepository = profesionalRepository;
     }
 
-    public Profesional crearProfesional(Profesional profesional) {
+    public ProfesionalDTO crearProfesional(CrearProfesionalDTO dto) {
 
-        if (profesionalRepository.existsByNombreAndEspecialidad(
-                profesional.getNombre(),
-                profesional.getEspecialidad())) {
+        Profesional profesional = new Profesional();
+        profesional.setNombre(dto.nombre());
+        profesional.setEspecialidad(dto.especialidad());
 
-            throw new IllegalArgumentException(
-                    "Ya existe un profesional con ese nombre y especialidad");
-        }
 
-        return profesionalRepository.save(profesional);
+        return toDTO(
+                profesionalRepository.save(profesional)
+        );
+
     }
+
 
     public List<Profesional> listarProfesionales() {
         return profesionalRepository.findAll();
@@ -38,15 +42,29 @@ public class ProfesionalService {
                 .orElseThrow(() -> new ProfesionalNotFoundException(id));
     }
 
-    public Profesional actualizar(Long id, Profesional profesional) {
-        Profesional existente = profesionalRepository.findById(id)
+    private ProfesionalDTO toDTO(Profesional p) {
+        return new ProfesionalDTO(
+                p.getId(),
+                p.getNombre(),
+                p.getEspecialidad()
+        );
+    }
+
+    public ProfesionalDTO actualizar(
+            Long id,
+            ActualizarProfesionalDTO dto) {
+
+        Profesional p = profesionalRepository.findById(id)
                 .orElseThrow(() -> new ProfesionalNotFoundException(id));
 
-        existente.setNombre(profesional.getNombre());
-        existente.setEspecialidad(profesional.getEspecialidad());
+        p.setNombre(dto.nombre());
+        p.setEspecialidad(dto.especialidad());
 
-        return profesionalRepository.save(existente);
+        return toDTO(
+                profesionalRepository.save(p)
+        );
     }
+
 
     public void eliminar(Long id) {
         if (!profesionalRepository.existsById(id)) {

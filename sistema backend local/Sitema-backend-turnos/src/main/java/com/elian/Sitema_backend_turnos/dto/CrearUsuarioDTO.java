@@ -5,5 +5,6 @@ import com.elian.Sitema_backend_turnos.model.Rol;
 public record CrearUsuarioDTO(
         String username,
         String password,
-        Rol rol
+        Rol rol,
+        Long profesionalId
 ) {}

@@ -3,7 +3,7 @@ spring:
     name: sistema-turnos
 
   datasource:
-    url: jdbc:h2:mem:turnos
+    url: jdbc:h2:file:./data/turnos-db
     driver-class-name: org.h2.Driver
     username: sa
     password:

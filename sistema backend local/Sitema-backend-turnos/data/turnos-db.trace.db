@@ -67,3 +67,34 @@ The object is already closed [90007-232]
 2026-02-03 02:01:39.155037-03:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
 The object is already closed [90007-232]
+2026-02-08 20:24:52.292631-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "select * [*]rfom profesional"
+Syntax error in SQL statement "select * [*]rfom profesional"; SQL statement:
+select * rfom profesional [42000-232]
+2026-02-08 20:24:59.605042-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PROFESIONAL" no encontrada
+Table "PROFESIONAL" not found; SQL statement:
+select * from Profesional [42102-232]
+2026-02-08 20:25:02.757809-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PROFESIONAL" no encontrada
+Table "PROFESIONAL" not found; SQL statement:
+select * from profesional [42102-232]
+2026-02-08 20:25:08.728229-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "PROFESIONAL" no encontrada
+Table "PROFESIONAL" not found; SQL statement:
+select * from PROFESIONAL [42102-232]
+2026-02-08 20:36:00.318829-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]
+2026-02-08 20:36:00.385342-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]
+2026-02-08 20:36:36.394616-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]
+2026-02-08 20:36:56.061670-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]
+2026-02-08 20:37:36.233401-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]

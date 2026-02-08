@@ -1,35 +1,59 @@
 package com.elian.Sitema_backend_turnos.service;
 
 import com.elian.Sitema_backend_turnos.dto.CrearUsuarioDTO;
+import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
+import com.elian.Sitema_backend_turnos.model.Profesional;
+import com.elian.Sitema_backend_turnos.model.Rol;
 import com.elian.Sitema_backend_turnos.model.Usuario;
+import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
 import com.elian.Sitema_backend_turnos.repository.UsuarioRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioService {
 
-    private final UsuarioRepository usuarioRepo;
-    private final PasswordEncoder encoder;
+    private final UsuarioRepository usuarioRepository;
+    private final ProfesionalRepository profesionalRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepo,
-                          PasswordEncoder encoder) {
-        this.usuarioRepo = usuarioRepo;
-        this.encoder = encoder;
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            ProfesionalRepository profesionalRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.usuarioRepository = usuarioRepository;
+        this.profesionalRepository = profesionalRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public Usuario crearUsuario(CrearUsuarioDTO dto) {
 
-        if (usuarioRepo.existsByUsername(dto.username())) {
-            throw new RuntimeException("Usuario ya existe");
+        Usuario usuario = new Usuario();
+
+        usuario.setUsername(dto.username());
+        usuario.setPassword(
+                passwordEncoder.encode(dto.password())
+        );
+
+        usuario.setRol(
+                Rol.valueOf(String.valueOf(dto.rol()))
+        );
+
+        if (dto.profesionalId() != null) {
+
+            Profesional profesional =
+                    profesionalRepository.findById(dto.profesionalId())
+                            .orElseThrow(() ->
+                                    new ProfesionalNotFoundException(dto.profesionalId()));
+
+            usuario.setProfesional(profesional);
         }
 
-        Usuario u = new Usuario();
-        u.setUsername(dto.username());
-        u.setPassword(encoder.encode(dto.password()));
-        u.setRol(dto.rol());
-
-        return usuarioRepo.save(u);
+        return usuarioRepository.save(usuario);
     }
 }
+
 
