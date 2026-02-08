@@ -1,5 +1,6 @@
 package com.elian.Sitema_backend_turnos.service;
 
+import com.elian.Sitema_backend_turnos.dto.UsuarioLogueadoDTO;
 import com.elian.Sitema_backend_turnos.model.Usuario;
 import com.elian.Sitema_backend_turnos.repository.UsuarioRepository;
 
@@ -15,6 +16,24 @@ public class SecurityService {
     public SecurityService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
+
+    public UsuarioLogueadoDTO usuarioActual() {
+
+        Usuario usuario = usuarioLogueado();
+
+        Long profesionalId = null;
+
+        if (usuario.getProfesional() != null) {
+            profesionalId = usuario.getProfesional().getId();
+        }
+
+        return new UsuarioLogueadoDTO(
+                usuario.getUsername(),
+                usuario.getRol().name(),
+                profesionalId
+        );
+    }
+
 
     public Usuario usuarioLogueado() {
 
