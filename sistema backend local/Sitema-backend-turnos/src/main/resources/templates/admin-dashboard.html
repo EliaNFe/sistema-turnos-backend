@@ -1,16 +1,44 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Admin</title>
+    <title>Admin Dashboard</title>
 </head>
 
 <body>
 
-<h1 th:text="${mensaje}"></h1>
+<h1>Panel Admin</h1>
 
-<a href="/logout">Cerrar sesión</a>
+<hr>
+
+<h2>Turnos</h2>
+
+<a href="/admin/turnos">
+    <button>Ver todos los turnos</button>
+</a>
+
+<a href="/admin/crear-turno">
+    <button>Crear turno</button>
+</a>
+
+<hr>
+
+<h2>Gestión</h2>
+
+<a href="/admin/profesionales">
+    <button>Profesionales</button>
+</a>
+
+<a href="/admin/clientes">
+    <button>Clientes</button>
+</a>
+
+<hr>
+
+<a href="/logout">
+    <button>Cerrar sesión</button>
+</a>
 
 </body>
 </html>
+
+

@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Profesional</title>
+    <title>Dashboard Profesional</title>
 </head>
 
 <body>
 
-<h1 th:text="${mensaje}"></h1>
+<h1>Mis turnos</h1>
 
-<a href="/pro/dashboard">
-    Ver mis turnos
-</a>
+<h3 th:text="'Fecha: ' + ${fecha}"></h3>
+
+<table border="1">
+
+    <tr>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Estado</th>
+    </tr>
+
+    <tr th:each="turno : ${turnos}">
+        <td th:text="${turno.fecha}"></td>
+        <td th:text="${turno.hora}"></td>
+        <td th:text="${turno.estado}"></td>
+    </tr>
+
+</table>
 
 <br>
 

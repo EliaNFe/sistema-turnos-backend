@@ -78,6 +78,13 @@ public class TurnoService {
     }
 
 
+    public List<TurnoDTO> listarTodos() {
+        return turnoRepository.findAll()
+                .stream()
+                .map(TurnoMapper::toDTO)
+                .toList();
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")         //Este es para el profesional que es solo para cambiar estados, la responsabilidad de cambiar todo de un turno se lo delego a admin
     public TurnoDTO actualizarEstado(Long turnoId, EstadoTurno nuevoEstado) {
 

@@ -20,22 +20,5 @@ public class ProController {
     public ProController(TurnoService turnoService) {
         this.turnoService = turnoService;
     }
-
-    @GetMapping("/dashboard")
-    public String dashboard(
-            @RequestParam(required = false) LocalDate fecha,
-            Model model) {
-
-        if (fecha == null)
-            fecha = LocalDate.now();
-
-        List<TurnoDTO> turnos =
-                turnoService.agendaDelProfesionalLogueado(fecha);
-
-        model.addAttribute("turnos", turnos);
-        model.addAttribute("fecha", fecha);
-
-        return "pro-dashboard";
-    }
 }
 
