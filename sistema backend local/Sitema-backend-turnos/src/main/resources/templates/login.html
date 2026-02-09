@@ -2,16 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #1f2933;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background: #323f4b;
+            padding: 30px;
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4caf50;
+            border: none;
+            color: white;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Login sistema turnos</h2>
-
 <form th:action="@{/login}" method="post">
+    <h2>Iniciar sesión</h2>
+
     <input type="text" name="username" placeholder="Usuario"/>
     <input type="password" name="password" placeholder="Contraseña"/>
-    <button type="submit">Ingresar</button>
+
+    <button type="submit">Entrar</button>
 </form>
 
 </body>
 </html>
+

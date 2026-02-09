@@ -2,21 +2,17 @@ package com.elian.Sitema_backend_turnos.security;
 
 import com.elian.Sitema_backend_turnos.model.Usuario;
 import com.elian.Sitema_backend_turnos.repository.UsuarioRepository;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomUserDetailsService               //traductor entre mi BD y Spring Security !!
-        implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {       //traductor entre mi BD y spring security
 
     private final UsuarioRepository usuarioRepository;
 
     public CustomUserDetailsService(
-            UsuarioRepository usuarioRepository) {
-
+            UsuarioRepository usuarioRepository
+    ) {
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -29,11 +25,7 @@ public class CustomUserDetailsService               //traductor entre mi BD y Sp
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Usuario no encontrado"));
 
-        return User.builder()
-                .username(usuario.getUsername())
-                .password(usuario.getPassword())
-                .roles(usuario.getRol().name())
-                .build();
+        return new CustomUserDetails(usuario);
     }
 }
 
