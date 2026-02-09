@@ -337,3 +337,6 @@ INSERT INTO profesionales (nombre, especialidad,) VALUES
 ('Laura', 'Odontología'),
 ('Diego', 'Kinesiología'),
 ('María', 'López') [42001-232]
+2026-02-09 03:30:53.816849-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]

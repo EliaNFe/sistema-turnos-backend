@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nuevo turno</title>
+</head>
+
+<body>
+
+<h2>Crear turno</h2>
+
+<form th:action="@{/admin/turnos/nuevo}" th:object="${turno}" method="post">
+
+    Cliente ID:
+    <input type="number" th:field="*{clienteId}" />
+    <br><br>
+
+    Profesional ID:
+    <input type="number" th:field="*{profesionalId}" />
+    <br><br>
+
+    Fecha:
+    <input type="date" th:field="*{fecha}" />
+    <br><br>
+
+    Hora:
+    <input type="time" th:field="*{hora}" />
+    <br><br>
+
+    <button type="submit">Crear turno</button>
+
+</form>
+
+<br>
+
+<a href="/admin/dashboard">Volver</a>
+
+</body>
+</html>
