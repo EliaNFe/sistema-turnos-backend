@@ -102,7 +102,8 @@ class TurnoServiceTest {
                 null, // No cambiamos profesional
                 LocalDate.now().plusDays(2),
                 LocalTime.of(12, 0),
-                "CANCELADO"
+                "CANCELADO",
+                turno.id()
         );
 
         TurnoDTO actualizado = turnoService.actualizarTurno(turno.id(), actualizarDto);

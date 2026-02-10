@@ -5,18 +5,56 @@
 </head>
 
 <body>
+<form method="get" th:action="@{/admin/turnos}">
+
+    Estado:
+    <select name="estado">
+        <option value="">Todos</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="CANCELADO">Cancelado</option>
+        <option value="CONFIRMADO">Confirmado</option>
+        <option value="COMPLETADO">Completado</option>
+    </select>
+
+    Profesional:
+    <select name="profesionalId">
+        <option value="">Todos</option>
+
+        <option th:each="p : ${profesionales}"
+                th:value="${p.id}"
+                th:text="${p.nombre}">
+        </option>
+    </select>
+
+    Fecha:
+    <input type="date" name="fecha">
+
+    <button type="submit">Filtrar</button>
+
+</form>
+
+<hr>
 
 <h1>Lista de turnos</h1>
+<div th:if="${success}" style="color:green">
+    <p th:text="${success}"></p>
+</div>
 
+<div th:if="${error}" style="color:red">
+    <p th:text="${error}"></p>
+</div>
 <table border="1">
 
     <tr>
-        <th>ID</th>
+        <th>ID Turno</th>
         <th>Fecha</th>
         <th>Hora</th>
         <th>Estado</th>
+        <th>Cliente</th>
+        <th>Profesional</th>
         <th>Acciones</th>
     </tr>
+
 
     <tr th:each="t : ${turnos}">
         <td th:text="${t.id}"></td>
@@ -24,12 +62,17 @@
         <td th:text="${t.hora}"></td>
         <td th:text="${t.estado}"></td>
 
+        <td th:text="${t.clienteNombre} + ' (#' + ${t.clienteId} + ')'"></td>
+
+        <td th:text="${t.profesionalNombre} + ' (#' + ${t.profesionalId} + ')'"></td>
+
         <td>
             <a th:href="@{/admin/turnos/editar/{id}(id=${t.id})}">
                 <button>Editar</button>
             </a>
         </td>
     </tr>
+
 
 </table>
 

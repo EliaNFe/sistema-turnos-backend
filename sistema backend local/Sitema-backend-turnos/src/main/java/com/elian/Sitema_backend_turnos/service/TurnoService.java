@@ -11,6 +11,9 @@ import com.elian.Sitema_backend_turnos.model.*;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
 import com.elian.Sitema_backend_turnos.repository.TurnoRepository;
+import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,13 +98,14 @@ public class TurnoService {
 
         return TurnoMapper.toDTO(turnoRepository.save(turno));    }
 
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public TurnoDTO actualizarTurno(Long turnoId, ActualizarTurnoDTO dto) {
         // Buscar el turno existente
         Turno turno = turnoRepository.findById(turnoId)
                 .orElseThrow(() -> new TurnoNotFoundException(turnoId));
 
-        // Si cambiamos de profesional, buscamos el nuevo profesional
+        // Si cambia de profesional, buscamos el nuevo profesional
         if (dto.profesionalId() != null && !dto.profesionalId().equals(turno.getProfesional().getId())) {
             Profesional profesional = profesionalRepository.findById(dto.profesionalId())
                     .orElseThrow(() -> new ProfesionalNotFoundException(dto.profesionalId()));
@@ -114,6 +118,19 @@ public class TurnoService {
                 dto.fecha(),
                 dto.hora()
         );
+
+        // Validar fecha/hora
+        if (dto.fecha() == null || dto.hora() == null) {
+            throw new IllegalArgumentException("Fecha y hora son obligatorias");
+        }
+
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
+        if (dto.fecha().isBefore(hoy) ||
+                (dto.fecha().isEqual(hoy) && dto.hora().isBefore(ahora))) {
+            throw new IllegalArgumentException("No se puede asignar un turno en el pasado");
+        }
 
         if (conflicto.isPresent() && !conflicto.get().getId().equals(turnoId)) {
             throw new IllegalStateException("El profesional ya tiene un turno en ese horario");
@@ -129,6 +146,29 @@ public class TurnoService {
 
         // Guardar cambios
         return TurnoMapper.toDTO(turnoRepository.save(turno));
+    }
+
+
+    public List<TurnoDTO> buscarPorEstado(String estado) {
+        EstadoTurno e = EstadoTurno.valueOf(estado);
+        return turnoRepository.findByEstado(e)
+                .stream()
+                .map(TurnoMapper::toDTO)
+                .toList();
+    }
+
+    public List<TurnoDTO> buscarPorProfesional(Long profesionalId) {
+        return turnoRepository.findByProfesionalId(profesionalId)
+                .stream()
+                .map(TurnoMapper::toDTO)
+                .toList();
+    }
+
+    public List<TurnoDTO> buscarPorFecha(LocalDate fecha) {
+        return turnoRepository.findByFecha(fecha)
+                .stream()
+                .map(TurnoMapper::toDTO)
+                .toList();
     }
 
 
@@ -189,6 +229,27 @@ public class TurnoService {
 
         return TurnoMapper.toDTO(turno);
     }
+
+    public Page<TurnoDTO> listarFiltradoYPaginado(
+            String estado,
+            Long profesionalId,
+            LocalDate fecha,
+            int pagina) {
+
+        PageRequest pageable = PageRequest.of(pagina, 10);
+
+        EstadoTurno enumEstado =
+                estado != null ? EstadoTurno.valueOf(estado) : null;
+
+        return turnoRepository.buscarConFiltros(
+                enumEstado,
+                profesionalId,
+                fecha,
+                pageable
+        ).map(TurnoMapper::toDTO);
+    }
+
+
 
     @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
     public List<TurnoDTO> agendaDelCliente(Long clienteId, LocalDate fecha, EstadoTurno estado) {

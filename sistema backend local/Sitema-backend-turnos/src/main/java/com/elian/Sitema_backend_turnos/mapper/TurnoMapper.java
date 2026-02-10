@@ -6,25 +6,29 @@ import com.elian.Sitema_backend_turnos.model.Turno;
 
 public class TurnoMapper {
 
-    public static TurnoDTO toDTO(Turno turno) {
+    public static TurnoDTO toDTO(Turno t) {
         return new TurnoDTO(
-                turno.getId(),
-                turno.getFecha(),
-                turno.getHora(),
-                turno.getEstado(),
-                turno.getCliente().getId(),
-                turno.getProfesional().getId()
+                t.getId(),
+                t.getFecha(),
+                t.getHora(),
+                t.getEstado(),
+
+                t.getCliente().getId(),
+                t.getCliente().getNombre(),
+
+                t.getProfesional().getId(),
+                t.getProfesional().getNombre()
         );
     }
 
-    public static ActualizarTurnoDTO toActualizarDTO(Turno t) {
+    public static ActualizarTurnoDTO toActualizarDTO(TurnoDTO t) {
 
         return new ActualizarTurnoDTO(
-                t.getProfesional().getId(),
-                t.getFecha(),
-                t.getHora(),
-                t.getEstado().toString(),
-                t.getId()
+                t.profesionalId(),
+                t.fecha(),
+                t.hora(),
+                t.estado().toString(),
+                t.id()
                 );
 }
 }
