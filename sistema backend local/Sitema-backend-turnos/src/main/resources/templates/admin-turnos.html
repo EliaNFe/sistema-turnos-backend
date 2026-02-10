@@ -8,29 +8,36 @@
 
 <h1>Lista de turnos</h1>
 
-<a href="/admin/dashboard">⬅ Volver</a>
-
 <table border="1">
 
     <tr>
         <th>ID</th>
-        <th>Cliente</th>
-        <th>Profesional</th>
         <th>Fecha</th>
         <th>Hora</th>
         <th>Estado</th>
+        <th>Acciones</th>
     </tr>
 
     <tr th:each="t : ${turnos}">
         <td th:text="${t.id}"></td>
-        <td th:text="${t.clienteId}"></td>
-        <td th:text="${t.profesionalId}"></td>
         <td th:text="${t.fecha}"></td>
         <td th:text="${t.hora}"></td>
         <td th:text="${t.estado}"></td>
+
+        <td>
+            <a th:href="@{/admin/turnos/editar/{id}(id=${t.id})}">
+                <button>Editar</button>
+            </a>
+        </td>
     </tr>
 
 </table>
+
+<br>
+
+<a href="/admin/dashboard">
+    <button>Volver</button>
+</a>
 
 </body>
 </html>

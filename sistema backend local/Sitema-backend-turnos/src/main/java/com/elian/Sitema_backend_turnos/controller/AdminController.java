@@ -1,14 +1,13 @@
 package com.elian.Sitema_backend_turnos.controller;
 
+import com.elian.Sitema_backend_turnos.dto.ActualizarTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
+import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 
 @Controller
@@ -60,6 +59,27 @@ public class AdminController {
 
         return "admin-turnos";
     }
+
+    @GetMapping("/turnos/editar/{id}")
+    public String mostrarEditarTurno(
+            @PathVariable Long id,
+            Model model
+    ) {
+        TurnoDTO dto = turnoService.buscarPorId(id);
+
+        model.addAttribute("turno", dto);
+
+        return "admin-turno-editar";
+    }
+
+    @PostMapping("/turnos/editar")
+    public String guardarEdicion(@ModelAttribute ActualizarTurnoDTO dto) {
+
+        turnoService.actualizarTurno(dto.id(),dto);
+
+        return "redirect:/admin/turnos";
+    }
+
 
 }
 

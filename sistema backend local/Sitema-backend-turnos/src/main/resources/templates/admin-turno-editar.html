@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<h2>Editar turno</h2>
+
+<form th:action="@{/admin/turnos/editar}"
+      th:object="${turno}"
+      method="post">
+
+    Cliente ID:
+    <input type="number" th:field="*{clienteId}"><br>
+
+    Profesional ID:
+    <input type="number" th:field="*{profesionalId}"><br>
+
+    Fecha:
+    <input type="date" th:field="*{fecha}"><br>
+
+    Hora:
+    <input type="time" th:field="*{hora}"><br>
+
+    <button type="submit">Guardar cambios</button>
+
+</form>
+
+</body>
+</html>
