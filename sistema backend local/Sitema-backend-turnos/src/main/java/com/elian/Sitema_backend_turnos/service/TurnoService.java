@@ -101,52 +101,78 @@ public class TurnoService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public TurnoDTO actualizarTurno(Long turnoId, ActualizarTurnoDTO dto) {
-        // Buscar el turno existente
+
+        // Buscar turno existente
         Turno turno = turnoRepository.findById(turnoId)
                 .orElseThrow(() -> new TurnoNotFoundException(turnoId));
 
-        // Si cambia de profesional, buscamos el nuevo profesional
-        if (dto.profesionalId() != null && !dto.profesionalId().equals(turno.getProfesional().getId())) {
-            Profesional profesional = profesionalRepository.findById(dto.profesionalId())
-                    .orElseThrow(() -> new ProfesionalNotFoundException(dto.profesionalId()));
+        // Cambio de profesional (opcional)
+        if (dto.profesionalId() != null &&
+                !dto.profesionalId().equals(turno.getProfesional().getId())) {
+
+            Profesional profesional = profesionalRepository
+                    .findById(dto.profesionalId())
+                    .orElseThrow(() ->
+                            new ProfesionalNotFoundException(dto.profesionalId()));
+
             turno.setProfesional(profesional);
         }
 
-        // Validar que la nueva fecha + hora no genere conflicto
-        Optional<Turno> conflicto = turnoRepository.findByProfesionalIdAndFechaAndHora(
-                turno.getProfesional().getId(),
-                dto.fecha(),
-                dto.hora()
-        );
+        // Tomo valores actuales si no vienen nuevos
+        LocalDate nuevaFecha =
+                dto.fecha() != null ? dto.fecha() : turno.getFecha();
 
-        // Validar fecha/hora
-        if (dto.fecha() == null || dto.hora() == null) {
-            throw new IllegalArgumentException("Fecha y hora son obligatorias");
+        LocalTime nuevaHora =
+                dto.hora() != null ? dto.hora() : turno.getHora();
+
+        // valida solo si cambian fecha/hora
+
+        if (dto.fecha() != null || dto.hora() != null) {
+
+            LocalDate hoy = LocalDate.now();
+            LocalTime ahora = LocalTime.now();
+
+            // Turnos en el pasado
+            if (nuevaFecha.isBefore(hoy) ||
+                    (nuevaFecha.isEqual(hoy) && nuevaHora.isBefore(ahora))) {
+
+                throw new IllegalArgumentException(
+                        "No se puede asignar un turno en el pasado"
+                );
+            }
+
+            // Conflicto de horarios
+            Optional<Turno> conflicto =
+                    turnoRepository.findByProfesionalIdAndFechaAndHora(
+                            turno.getProfesional().getId(),
+                            nuevaFecha,
+                            nuevaHora
+                    );
+
+            if (conflicto.isPresent() &&
+                    !conflicto.get().getId().equals(turnoId)) {
+
+                throw new IllegalStateException(
+                        "El profesional ya tiene un turno en ese horario"
+                );
+            }
         }
 
-        LocalDate hoy = LocalDate.now();
-        LocalTime ahora = LocalTime.now();
+        // Actualizo solo lo que vino en parametro
 
-        if (dto.fecha().isBefore(hoy) ||
-                (dto.fecha().isEqual(hoy) && dto.hora().isBefore(ahora))) {
-            throw new IllegalArgumentException("No se puede asignar un turno en el pasado");
-        }
+        if (dto.fecha() != null)
+            turno.setFecha(dto.fecha());
 
-        if (conflicto.isPresent() && !conflicto.get().getId().equals(turnoId)) {
-            throw new IllegalStateException("El profesional ya tiene un turno en ese horario");
-        }
+        if (dto.hora() != null)
+            turno.setHora(dto.hora());
 
-        // Actualizar campos
-        turno.setFecha(dto.fecha());
-        turno.setHora(dto.hora());
+        if (dto.estado() != null)
+            turno.setEstado(EstadoTurno.valueOf(dto.estado()));
 
-        if (dto.estado() != null) {
-            turno.setEstado(EstadoTurno.valueOf(dto.estado())); // Convertir String a Enum
-        }
-
-        // Guardar cambios
+        // Guardar
         return TurnoMapper.toDTO(turnoRepository.save(turno));
     }
+
 
 
     public List<TurnoDTO> buscarPorEstado(String estado) {

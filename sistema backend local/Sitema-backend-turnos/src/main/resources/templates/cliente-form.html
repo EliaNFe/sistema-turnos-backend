@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Crear cliente</title>
+</head>
+
+<body>
+
+<h1>Nuevo Cliente</h1>
+
+<form th:action="@{/admin/clientes/nuevo}"
+      th:object="${cliente}"
+      method="post">
+
+    Nombre:<br>
+    <input type="text" th:field="*{nombre}" required>
+    <br><br>
+
+    Apellido:<br>
+    <input type="text" th:field="*{apellido}" required>
+    <br><br>
+
+    Documento:<br>
+    <input type="text" th:field="*{documento}" required>
+    <br><br>
+
+    Teléfono:<br>
+    <input type="text" th:field="*{telefono}" required>
+    <br><br>
+
+    Email:<br>
+    <input type="email" th:field="*{email}">
+    <br><br>
+
+    <button type="submit">Guardar cliente</button>
+
+
+
+    <button type="submit"
+            onclick="return confirm('¿Seguro que quieres Crear el Cliente?')" >
+        Guardar cliente</button>
+
+</form>
+
+<br>
+
+<a href="/admin/turnos/nuevo">
+    <button>Volver</button>
+</a>
+
+</body>
+</html>

@@ -1,9 +1,11 @@
 package com.elian.Sitema_backend_turnos.controller;
 
 import com.elian.Sitema_backend_turnos.dto.ActualizarTurnoDTO;
+import com.elian.Sitema_backend_turnos.dto.CrearClienteDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.mapper.TurnoMapper;
+import com.elian.Sitema_backend_turnos.service.ClienteService;
 import com.elian.Sitema_backend_turnos.service.ProfesionalService;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,10 +26,12 @@ public class AdminController {
 
     private final TurnoService turnoService;
     private final ProfesionalService profesionalService;
+    private final ClienteService clienteService;
 
-    public AdminController(TurnoService turnoService, ProfesionalService profesionalService) {
+    public AdminController(TurnoService turnoService, ProfesionalService profesionalService, ClienteService clienteService) {
         this.turnoService = turnoService;
         this.profesionalService = profesionalService;
+        this.clienteService = clienteService;
     }
 
     @GetMapping("/dashboard")
@@ -41,11 +45,53 @@ public class AdminController {
         return "admin-dashboard";
     }
 
+    @PostMapping("/turnos/cancelar/{id}")
+    public String cancelarTurno(@PathVariable Long id,
+                                RedirectAttributes redirect) {
+
+        try {
+            turnoService.cancelarTurno(id);
+            redirect.addFlashAttribute("success", "Turno cancelado");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/admin/turnos";
+    }
+
+
+    @GetMapping("/clientes/nuevo")
+    public String nuevoCliente(Model model) {
+
+        model.addAttribute(
+                "cliente",
+                new CrearClienteDTO(null, null, null, null, null)
+        );
+
+
+        return "cliente-form";
+    }
+
+
+
+
     @GetMapping("/turnos/nuevo")
     public String mostrarFormularioTurno(Model model) {
         model.addAttribute("turno", new CrearTurnoDTO(null, null, null, null));
         return "turno-form";
     }
+
+    @PostMapping("/clientes/nuevo")
+    public String guardarCliente(@ModelAttribute CrearClienteDTO dto,
+                                 RedirectAttributes redirect) {
+
+        clienteService.crearCliente(dto);
+
+        redirect.addFlashAttribute("success", "Cliente creado");
+
+        return "redirect:/admin/turnos/nuevo";
+    }
+
 
 
     @PostMapping("/turnos/nuevo")

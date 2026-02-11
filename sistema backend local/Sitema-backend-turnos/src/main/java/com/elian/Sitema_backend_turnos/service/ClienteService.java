@@ -1,9 +1,12 @@
 package com.elian.Sitema_backend_turnos.service;
 
+import com.elian.Sitema_backend_turnos.dto.CrearClienteDTO;
 import com.elian.Sitema_backend_turnos.exception.ClientenotFoundException;
+import com.elian.Sitema_backend_turnos.mapper.ClienteMapper;
 import com.elian.Sitema_backend_turnos.model.Cliente;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,14 +19,18 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    public Cliente crearCliente(Cliente cliente) {
+    @Transactional
+    public Cliente crearCliente(CrearClienteDTO dto) {
 
-        if (clienteRepository.existsByDocumento(cliente.getDocumento())) {
+        if (clienteRepository.existsByDocumento(dto.documento())) {
             throw new IllegalArgumentException("Ya existe un cliente con ese documento");
         }
 
+        Cliente cliente = ClienteMapper.toEntity(dto);
+
         return clienteRepository.save(cliente);
     }
+
 
     public List<Cliente> listarClientes() {
         return clienteRepository.findAll();

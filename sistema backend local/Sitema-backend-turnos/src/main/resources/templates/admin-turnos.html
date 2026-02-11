@@ -67,6 +67,14 @@
         <td th:text="${t.profesionalNombre} + ' (#' + ${t.profesionalId} + ')'"></td>
 
         <td>
+            <form th:action="@{/admin/turnos/cancelar/{id}(id=${t.id})}"
+                  method="post"
+                  style="display:inline">
+
+                <button type="submit">Cancelar</button>
+
+            </form>
+
             <a th:href="@{/admin/turnos/editar/{id}(id=${t.id})}">
                 <button>Editar</button>
             </a>

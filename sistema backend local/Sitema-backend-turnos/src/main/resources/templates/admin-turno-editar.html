@@ -15,12 +15,12 @@
 
     <div>
         <label>Fecha:</label>
-        <input type="date" th:field="*{fecha}" required />
+        <input type="date" th:field="*{fecha}"/>
     </div>
 
     <div>
         <label>Hora:</label>
-        <input type="time" th:field="*{hora}" required />
+        <input type="time" th:field="*{hora}" />
     </div>
 
     <div>
@@ -40,7 +40,6 @@
 
     <br>
 
-    <button type="submit">Guardar cambios</button>
     <button type="submit"
             onclick="return confirm('¿Seguro que querés actualizar el turno?')">
         Actualizar
