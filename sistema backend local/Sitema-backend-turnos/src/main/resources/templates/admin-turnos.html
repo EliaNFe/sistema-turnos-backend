@@ -7,8 +7,7 @@
     <h1 class="mb-4">Turnos</h1>
 
     <!-- Filtros -->
-    <form method="get" th:action="@{/admin/turnos}" class="row g-3 mb-4">
-
+    <form method="get" th:action="@{/admin/turnos}" class="row g-3 mb-4 filter-container">
         <div class="col-md-3">
             <label class="form-label">Estado:</label>
             <select name="estado" class="form-select">
@@ -19,7 +18,6 @@
                 <option value="COMPLETADO">Completado</option>
             </select>
         </div>
-
         <div class="col-md-3">
             <label class="form-label">Profesional:</label>
             <select name="profesionalId" class="form-select">
@@ -30,12 +28,10 @@
                 </option>
             </select>
         </div>
-
         <div class="col-md-3">
             <label class="form-label">Fecha:</label>
             <input type="date" name="fecha" class="form-control">
         </div>
-
         <div class="col-md-3 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Filtrar</button>
         </div>
@@ -46,59 +42,54 @@
         <span th:text="${success}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <span th:text="${error}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-
     <!-- Lista de turnos -->
-    <table class="table table-striped table-hover align-middle">
-        <thead class="table-dark">
-        <tr>
-            <th>ID Turno</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Estado</th>
-            <th>Cliente</th>
-            <th>Profesional</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="t : ${turnos}">
-            <td th:text="${t.id}"></td>
-            <td th:text="${t.fecha}"></td>
-            <td th:text="${t.hora}"></td>
-            <td>
-    <span th:classappend="
-    ${t.estado.name() == 'PENDIENTE'} ? 'badge badge-pendiente' :
-    (${t.estado.name() == 'CONFIRMADO'} ? 'badge badge-confirmado' :
-    (${t.estado.name() == 'COMPLETADO'} ? 'badge badge-completado' :
-    (${t.estado.name() == 'CANCELADO'} ? 'badge badge-cancelado' : 'badge bg-dark')))">
-    <span th:text="${t.estado}"></span>
-</span>
-
-                </span>
-            </td>
-
-            <td th:text="${t.clienteNombre} + ' (#' + ${t.clienteId} + ')'"></td>
-            <td th:text="${t.profesionalNombre} + ' (#' + ${t.profesionalId} + ')'"></td>
-            <td>
-                <form th:action="@{/admin/turnos/cancelar/{id}(id=${t.id})}"
-                      method="post"
-                      style="display:inline">
-                    <a href="/admin/turnos/cancelar/1" class="btn btn-cancelar btn-sm"
-                       onclick="return confirm('¿Seguro querés cancelar este turno?')">Cancelar</a>
-
-                </form>
-                <a href="/admin/turnos/editar/1" class="btn btn-editar btn-sm">Editar</a>
-
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Estado</th>
+                <th>Cliente</th>
+                <th>Profesional</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${turnos}">
+                <td th:text="${t.id}"></td>
+                <td th:text="${t.fecha}"></td>
+                <td th:text="${t.hora}"></td>
+                <td>
+                    <span th:classappend="
+                        ${t.estado.name() == 'PENDIENTE'} ? 'badge badge-pendiente' :
+                        (${t.estado.name() == 'CONFIRMADO'} ? 'badge badge-confirmado' :
+                        (${t.estado.name() == 'COMPLETADO'} ? 'badge badge-completado' :
+                        (${t.estado.name() == 'CANCELADO'} ? 'badge badge-cancelado' : 'badge bg-dark')))">
+                        <span th:text="${t.estado}"></span>
+                    </span>
+                </td>
+                <td th:text="${t.clienteNombre}"></td>
+                <td th:text="${t.profesionalNombre}"></td>
+                <td>
+                    <form th:action="@{/admin/turnos/cancelar/{id}(id=${t.id})}" method="post" style="display:inline">
+                        <button type="button" class="btn btn-cancelar btn-sm"
+                                th:onclick="'confirmarCancelacion(' + ${t.id} + ')'">
+                            Cancelar
+                        </button>
+                    </form>
+                    <a th:href="@{/admin/turnos/editar/{id}(id=${t.id})}" class="btn btn-editar btn-sm">Editar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
     <a href="/admin/dashboard" class="btn btn-secondary mt-3">Volver</a>
 

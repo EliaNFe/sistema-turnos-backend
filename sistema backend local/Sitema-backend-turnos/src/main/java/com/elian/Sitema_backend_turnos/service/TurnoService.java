@@ -130,16 +130,13 @@ public class TurnoService {
             turno.setProfesional(profesional);
         }
 
-        // Tomo valores actuales si no vienen nuevos
-        LocalDate nuevaFecha =
-                dto.fecha() != null ? dto.fecha() : turno.getFecha();
+        // Validar solo si cambian fecha/hora
+        if ((dto.fecha() != null && !dto.fecha().equals(turno.getFecha())) ||
+                (dto.hora() != null && !dto.hora().equals(turno.getHora()))) {
 
-        LocalTime nuevaHora =
-                dto.hora() != null ? dto.hora() : turno.getHora();
 
-        // valida solo si cambian fecha/hora
-
-        if (dto.fecha() != null || dto.hora() != null) {
+            LocalDate nuevaFecha = dto.fecha() != null ? dto.fecha() : turno.getFecha();
+            LocalTime nuevaHora = dto.hora() != null ? dto.hora() : turno.getHora();
 
             LocalDate hoy = LocalDate.now();
             LocalTime ahora = LocalTime.now();
@@ -147,7 +144,6 @@ public class TurnoService {
             // Turnos en el pasado
             if (nuevaFecha.isBefore(hoy) ||
                     (nuevaFecha.isEqual(hoy) && nuevaHora.isBefore(ahora))) {
-
                 throw new IllegalArgumentException(
                         "No se puede asignar un turno en el pasado"
                 );
@@ -161,25 +157,21 @@ public class TurnoService {
                             nuevaHora
                     );
 
-            if (conflicto.isPresent() &&
-                    !conflicto.get().getId().equals(turnoId)) {
-
+            if (conflicto.isPresent() && !conflicto.get().getId().equals(turnoId)) {
                 throw new IllegalStateException(
                         "El profesional ya tiene un turno en ese horario"
                 );
             }
+
+            // Actualizo fecha/hora si vinieron
+            if (dto.fecha() != null) turno.setFecha(dto.fecha());
+            if (dto.hora() != null) turno.setHora(dto.hora());
         }
 
-        // Actualizo solo lo que vino en parametro
-
-        if (dto.fecha() != null)
-            turno.setFecha(dto.fecha());
-
-        if (dto.hora() != null)
-            turno.setHora(dto.hora());
-
-        if (dto.estado() != null)
+        // Estado siempre se puede actualizar
+        if (dto.estado() != null) {
             turno.setEstado(EstadoTurno.valueOf(dto.estado()));
+        }
 
         // Guardar
         return TurnoMapper.toDTO(turnoRepository.save(turno));

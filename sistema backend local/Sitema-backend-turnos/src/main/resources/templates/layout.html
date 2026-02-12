@@ -3,58 +3,57 @@
 
 <head>
     <title>Sistema</title>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
     <style>
-        .badge-pendiente {
-    background-color: #ffe082; /* amarillo pastel */
-    color: #5d4037;            /* marrón suave para contraste */
+        .filter-container {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.badge-confirmado {
-    background-color: #81d4fa; /* azul pastel */
-    color: #01579b;            /* azul más fuerte para texto */
+.table-container {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-.badge-completado {
-    background-color: #a5d6a7; /* verde pastel */
-    color: #1b5e20;            /* verde oscuro para contraste */
+.table thead th {
+    background-color: #f0f0f0;
+    color: #444;
+    font-weight: 600;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
 }
 
-.badge-cancelado {
-    background-color: #ef9a9a; /* rojo pastel/coral */
-    color: #b71c1c;            /* rojo más fuerte para texto */
+.table tbody tr {
+    background-color: #fafafa;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-        .btn-editar {
-        background-color: #a3d2ca; /* verde menta suave */
-        color: #333;
-    }
-    .btn-editar:hover {
-        background-color: #76b5a0;
-        color: #fff;
-    }
-
-    .btn-cancelar {
-        background-color: #e0b0a0; /* coral/beige suave */
-        color: #fff;
-    }
-    .btn-cancelar:hover {
-        background-color: #c98f7a;
-        color: #fff;
-    }
-
+        /* Fondo cálido */
         body {
             background: linear-gradient(135deg, #f5f5dc 0%, #e8e6e1 100%); /* beige-hueso */
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            padding: 2rem;
         }
 
+        /* Contenedor principal con glassmorphism */
         .container {
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
@@ -63,7 +62,7 @@
             padding: 2rem 3rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.25);
             color: #333;
-            max-width: 800px;
+            max-width: 1000px;
             width: 100%;
             animation: fadeIn 0.8s ease;
         }
@@ -73,39 +72,60 @@
             color: #444;
         }
 
+        /* Botones base */
         .btn {
             border-radius: 10px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
+        /* Botones pastel */
+        .btn-editar {
+            background-color: #a7c7e7; /* azul pastel */
+            color: #333;
+        }
+        .btn-editar:hover {
+            background-color: #7fa6d2;
+            color: #fff;
+        }
+
+        .btn-cancelar {
+            background-color: #f4a6a6; /* coral pastel */
+            color: #fff;
+        }
+        .btn-cancelar:hover {
+            background-color: #e57373;
+            color: #fff;
+        }
+
+        /* Estados pastel */
+        .badge-pendiente {
+            background-color: #ffe082; /* amarillo pastel */
+            color: #5d4037;
+        }
+        .badge-confirmado {
+            background-color: #81d4fa; /* azul pastel */
+            color: #01579b;
+        }
+        .badge-completado {
+            background-color: #a5d6a7; /* verde pastel */
+            color: #1b5e20;
+        }
+        .badge-cancelado {
+            background-color: #ef9a9a; /* coral pastel */
+            color: #b71c1c;
+        }
+
+        /* Alertas */
         .alert {
             border-radius: 10px;
             font-weight: 500;
         }
 
-        /* Colores de estados */
-        .badge-pendiente {
-            background-color: #f0ad4e; /* dorado suave */
-            color: #fff;
-        }
-        .badge-confirmado {
-            background-color: #5bc0de; /* celeste */
-            color: #fff;
-        }
-        .badge-completado {
-            background-color: #5cb85c; /* verde */
-            color: #fff;
-        }
-        .badge-cancelado {
-            background-color: #d9534f; /* rojo coral */
-            color: #fff;
-        }
-
+        /* Animación */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -117,5 +137,28 @@
 <div class="container mt-4">
     <div th:insert="~{::contenido}"></div>
 </div>
+<script>
+    function confirmarCancelacion(id) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción cancelará el turno",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f4a6a6', // coral pastel
+            cancelButtonColor: '#a7c7e7',  // azul pastel
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Enviar el formulario o redirigir
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '/admin/turnos/cancelar/' + id;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        })
+    }
+</script>
 </body>
 </html>
