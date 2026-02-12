@@ -31,14 +31,12 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-
     public List<ClienteDTO> listarClientes() {
         return clienteRepository.findAll()
                 .stream()
                 .map(ClienteMapper::toDTO)
                 .toList();
     }
-
 
     public Cliente buscarPorId(Long id) {
         return clienteRepository.findById(id)

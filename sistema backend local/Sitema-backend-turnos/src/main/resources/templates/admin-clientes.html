@@ -28,7 +28,7 @@
                 <td th:text="${c.email}"></td>
                 <td th:text="${c.telefono}"></td>
                 <td>
-                    <button class="btn btn-editar btn-sm">Editar</button>
+                    <a th:href="@{/admin/clientes/editar/{id}(id=${c.id})}" class="btn btn-editar btn-sm">Editar</a>
                 </td>
             </tr>
             </tbody>

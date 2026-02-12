@@ -26,7 +26,8 @@ public class ClienteMapper {
                 c.getApellido(),
                 c.getDocumento(),
                 c.getTelefono(),
-                c.getEmail()
+                c.getEmail(),
+                c.getId()
         );
     }
 

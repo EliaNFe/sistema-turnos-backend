@@ -5,7 +5,8 @@ public record ClienteDTO(
         String apellido,
         String documento,
         String telefono,
-        String email
+        String email,
+        Long id
 ) {}
 
 

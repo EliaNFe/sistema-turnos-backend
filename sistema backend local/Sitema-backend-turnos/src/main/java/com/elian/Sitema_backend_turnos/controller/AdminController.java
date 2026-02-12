@@ -5,6 +5,7 @@ import com.elian.Sitema_backend_turnos.dto.ClienteDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.mapper.TurnoMapper;
+import com.elian.Sitema_backend_turnos.model.Cliente;
 import com.elian.Sitema_backend_turnos.service.ClienteService;
 import com.elian.Sitema_backend_turnos.service.ProfesionalService;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
@@ -61,7 +62,7 @@ public class AdminController {
 
         model.addAttribute(
                 "cliente",
-                new ClienteDTO(null, null, null, null, null)
+                new ClienteDTO(null, null, null, null, null,null)
         );
 
 
@@ -175,6 +176,21 @@ public class AdminController {
         return "redirect:/admin/turnos";
     }
 
+    @GetMapping("/clientes/editar/{id}")
+    public String editarCliente(@PathVariable Long id, Model model) {
+        Cliente cliente = clienteService.buscarPorId(id);
+        model.addAttribute("cliente", cliente);
+        return "cliente-form-editar";
+    }
+
+    @PostMapping("/clientes/editar/{id}")
+    public String actualizarCliente(@PathVariable Long id,
+                                    @ModelAttribute Cliente cliente,
+                                    RedirectAttributes redirect) {
+        clienteService.actualizar(id, cliente);
+        redirect.addFlashAttribute("success", "Cliente actualizado correctamente");
+        return "redirect:/admin/clientes";
+    }
 
 
 }

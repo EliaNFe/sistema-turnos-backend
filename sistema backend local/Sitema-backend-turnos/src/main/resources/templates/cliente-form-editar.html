@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: html">
+
+<th:block th:fragment="contenido">
+
+    <h1 class="mb-4">Editar Cliente</h1>
+
+    <form th:action="@{'/admin/clientes/editar/' + ${cliente.id}}"
+          th:object="${cliente}"
+          method="post"
+          class="needs-validation panel-container">
+
+        <div class="mb-3">
+            <label class="form-label">Nombre:</label>
+            <input type="text" th:field="*{nombre}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Apellido:</label>
+            <input type="text" th:field="*{apellido}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Documento:</label>
+            <input type="text" th:field="*{documento}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Teléfono:</label>
+            <input type="text" th:field="*{telefono}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email:</label>
+            <input type="email" th:field="*{email}" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary"
+                onclick="return confirm('¿Seguro que quieres guardar los cambios?')">
+            Guardar cambios
+        </button>
+
+        <a href="/admin/clientes" class="btn btn-secondary ms-2">
+            Volver a lista de clientes
+        </a>
+    </form>
+
+    <style>
+        .panel-container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            border: 1px solid rgba(167, 199, 231, 0.4);
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1 {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background-color: #a7c7e7;
+            color: #333;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #7fa6d2;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background-color: #ffe082;
+            color: #5d4037;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #ffca28;
+            color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+</th:block>
+</html>
