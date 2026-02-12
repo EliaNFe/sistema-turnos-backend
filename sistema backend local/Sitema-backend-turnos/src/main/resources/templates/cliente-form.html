@@ -6,29 +6,35 @@
 
     <h1 class="mb-4">Nuevo Cliente</h1>
 
-    <form th:action="@{/admin/clientes/nuevo}"
+    <form id="formClienteNuevo"
+          th:action="@{/admin/clientes/nuevo}"
           th:object="${cliente}"
           method="post"
-          class="needs-validation">
+          class="needs-validation"
+          novalidate>
 
         <div class="mb-3">
             <label class="form-label">Nombre:</label>
             <input type="text" th:field="*{nombre}" class="form-control" required>
+            <div class="invalid-feedback">Por favor, ingresa un nombre.</div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Apellido:</label>
             <input type="text" th:field="*{apellido}" class="form-control" required>
+            <div class="invalid-feedback">Por favor, ingresa un apellido.</div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Documento:</label>
             <input type="text" th:field="*{documento}" class="form-control" required>
+            <div class="invalid-feedback">El documento es obligatorio.</div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Teléfono:</label>
             <input type="text" th:field="*{telefono}" class="form-control" required>
+            <div class="invalid-feedback">Ingresa un número de contacto.</div>
         </div>
 
         <div class="mb-3">
@@ -36,30 +42,46 @@
             <input type="email" th:field="*{email}" class="form-control">
         </div>
 
-        <button type="submit" class="btn btn-success"
-                onclick="return confirm('¿Seguro que quieres Crear el Cliente?')">
-            Guardar cliente
-        </button>
+        <div class="mt-4">
+            <button type="button" class="btn btn-success"
+                    onclick="validarYEnviar()">
+                Guardar cliente
+            </button>
 
-        <a th:if="${param.from[0]} == 'turnos'"
-           href="/admin/turnos/nuevo"
-           class="btn btn-secondary ms-2">
-            Volver a crear turno
-        </a>
+            <a th:if="${param.from != null and param.from[0] == 'turnos'}"
+               th:href="@{/admin/turnos/nuevo}"
+               class="btn btn-secondary ms-2">
+                Volver a crear turno
+            </a>
 
-        <a th:if="${param.from[0]} == 'clientes'"
-           href="/admin/clientes"
-           class="btn btn-secondary ms-2">
-            Volver a lista de clientes
-        </a>
+            <a th:if="${param.from != null and param.from[0] == 'clientes'}"
+               th:href="@{/admin/clientes}"
+               class="btn btn-secondary ms-2">
+                Volver a lista de clientes
+            </a>
 
-        <a th:if="${param.from == null}"
-           href="/admin/dashboard"
-           class="btn btn-secondary ms-2">
-            Volver al Panel Admin
-        </a>
-
+            <a th:if="${param.from == null}"
+               th:href="@{/admin/dashboard}"
+               class="btn btn-secondary ms-2">
+                Volver al Panel Admin
+            </a>
+        </div>
     </form>
+
+    <script>
+        function validarYEnviar() {
+            const form = document.getElementById('formClienteNuevo');
+
+            // Verificamos si los campos 'required' están llenos
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return; // Si no es válido, no hace nada (muestra errores de Bootstrap)
+            }
+
+            // Si es válido, llamamos a la función de SweetAlert que tienes en el layout
+            confirmarGuardado('formClienteNuevo', '¿Seguro que quieres crear este nuevo cliente?');
+        }
+    </script>
 
 </th:block>
 </html>

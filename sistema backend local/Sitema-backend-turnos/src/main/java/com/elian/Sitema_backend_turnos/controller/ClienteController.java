@@ -2,6 +2,7 @@ package com.elian.Sitema_backend_turnos.controller;
 
 
 import com.elian.Sitema_backend_turnos.dto.ClienteDTO;
+import com.elian.Sitema_backend_turnos.dto.CrearClienteDTO;
 import com.elian.Sitema_backend_turnos.model.Cliente;
 import com.elian.Sitema_backend_turnos.service.ClienteService;
 import jakarta.validation.Valid;
@@ -22,7 +23,7 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<Cliente> crearCliente(@Valid @RequestBody ClienteDTO cliente) {
+    public ResponseEntity<Cliente> crearCliente(@Valid @RequestBody CrearClienteDTO cliente) {
         Cliente creado = clienteService.crearCliente(cliente);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }

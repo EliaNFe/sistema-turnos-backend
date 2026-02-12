@@ -139,22 +139,22 @@
 </div>
 <script>
     function confirmarGuardado(formId, mensaje) {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: mensaje,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#a5d6a7', // verde pastel
-            cancelButtonColor: '#ef9a9a',  // coral pastel
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(formId).submit();
-            }
-        });
-        return false; // evita el submit automático
-    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: mensaje,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#a5d6a7',
+        cancelButtonColor: '#ef9a9a',
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Buscamos el formulario y lo enviamos manualmente
+            document.getElementById(formId).submit();
+        }
+    });
+}
 
 function confirmarCancelacion(id) {
         Swal.fire({

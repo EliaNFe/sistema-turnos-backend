@@ -1,6 +1,7 @@
 package com.elian.Sitema_backend_turnos.service;
 
 import com.elian.Sitema_backend_turnos.dto.ClienteDTO;
+import com.elian.Sitema_backend_turnos.dto.CrearClienteDTO;
 import com.elian.Sitema_backend_turnos.exception.ClientenotFoundException;
 import com.elian.Sitema_backend_turnos.mapper.ClienteMapper;
 import com.elian.Sitema_backend_turnos.model.Cliente;
@@ -22,16 +23,19 @@ public class ClienteService {
     }
 
     @Transactional
-    public Cliente crearCliente(ClienteDTO dto) {
-
+    public Cliente crearCliente(CrearClienteDTO dto) {
         if (clienteRepository.existsByDocumento(dto.documento())) {
             throw new IllegalArgumentException("Ya existe un cliente con ese documento");
         }
-
-        Cliente cliente = ClienteMapper.toEntity(dto);
-
+        Cliente cliente = new Cliente();
+        cliente.setNombre(dto.nombre());
+        cliente.setApellido(dto.apellido());
+        cliente.setDocumento(dto.documento());
+        cliente.setTelefono(dto.telefono());
+        cliente.setEmail(dto.email());
         return clienteRepository.save(cliente);
     }
+
 
     public Page<ClienteDTO> listarClientes(Pageable pageable) {
         return clienteRepository.findAll(pageable)
