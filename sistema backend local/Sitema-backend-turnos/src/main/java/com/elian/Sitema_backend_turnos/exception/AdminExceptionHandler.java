@@ -19,6 +19,6 @@ public class AdminExceptionHandler {        //ESTE ES PARA EXCEPTION DE VISTAS Y
 
         redirect.addFlashAttribute("error", ex.getMessage());
 
-        return "redirect:/admin/turnos";
+        return "redirect:/admin/dashboard";
     }
 }

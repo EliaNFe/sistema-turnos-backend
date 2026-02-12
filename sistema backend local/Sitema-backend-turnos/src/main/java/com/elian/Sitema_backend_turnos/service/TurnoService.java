@@ -50,9 +50,21 @@ public class TurnoService {
         LocalDate hoy = LocalDate.now();
         LocalTime ahora = LocalTime.now();
 
+        if (dto.fecha() == null || dto.hora() == null) {
+            throw new IllegalArgumentException("La fecha y la hora son obligatorias");
+        }
+
         if (dto.fecha().isBefore(hoy) ||
                 (dto.fecha().isEqual(hoy) && dto.hora().isBefore(ahora))) {
             throw new IllegalStateException("No se pueden crear turnos en el pasado");
+        }
+
+        if (dto.clienteId() == null || dto.profesionalId() == null) {
+            throw new IllegalArgumentException("Debe seleccionar cliente y profesional");
+        }
+
+        if (dto.hora().isBefore(LocalTime.of(8,0)) || dto.hora().isAfter(LocalTime.of(20,0))) {
+            throw new IllegalStateException("El turno debe estar dentro del horario laboral");
         }
 
         Profesional profesional = profesionalRepository.findById(dto.profesionalId())

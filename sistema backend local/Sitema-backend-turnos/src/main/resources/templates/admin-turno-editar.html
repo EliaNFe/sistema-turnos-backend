@@ -1,58 +1,51 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Editar turno</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: html">
 
-<body>
+<th:block th:fragment="contenido">
 
-<h1>Editar turno</h1>
+    <h1 class="mb-4">Editar turno</h1>
 
-<form th:action="@{/admin/turnos/editar}" th:object="${turno}" method="post">
+    <form th:action="@{/admin/turnos/editar}" th:object="${turno}" method="post" class="needs-validation">
 
-    <!-- ID oculto -->
-    <input type="hidden" th:field="*{id}" />
+        <!-- ID oculto -->
+        <input type="hidden" th:field="*{id}" />
 
-    <div>
-        <label>Fecha:</label>
-        <input type="date" th:field="*{fecha}"/>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha:</label>
+            <input type="date" th:field="*{fecha}" class="form-control"/>
+        </div>
 
-    <div>
-        <label>Hora:</label>
-        <input type="time" th:field="*{hora}" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Hora:</label>
+            <input type="time" th:field="*{hora}" class="form-control"/>
+        </div>
 
-    <div>
-        <label>Estado:</label>
-        <select th:field="*{estado}">
-            <option value="PENDIENTE">Pendiente</option>
-            <option value="COMPLETADO">Completado</option>
-            <option value="CANCELADO">Cancelado</option>
-            <option value="CONFIRMADO">Confirmado</option>
-        </select>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Estado:</label>
+            <select th:field="*{estado}" class="form-select">
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="COMPLETADO">Completado</option>
+                <option value="CANCELADO">Cancelado</option>
+                <option value="CONFIRMADO">Confirmado</option>
+            </select>
+        </div>
 
-    <div>
-        <label>ID Profesional (opcional):</label>
-        <input type="number" th:field="*{profesionalId}" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label">ID Profesional (opcional):</label>
+            <input type="number" th:field="*{profesionalId}" class="form-control"/>
+        </div>
 
-    <br>
+        <button type="submit" class="btn btn-primary"
+                onclick="return confirm('¿Seguro que querés actualizar el turno?')">
+            Actualizar
+        </button>
 
-    <button type="submit"
-            onclick="return confirm('¿Seguro que querés actualizar el turno?')">
-        Actualizar
-    </button>
+        <a href="/admin/turnos" class="btn btn-secondary ms-2">
+            Volver
+        </a>
 
+    </form>
 
-</form>
-
-<br>
-
-<a href="/admin/turnos">
-    <button>Volver</button>
-</a>
-
-</body>
+</th:block>
 </html>

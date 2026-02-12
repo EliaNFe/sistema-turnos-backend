@@ -1,42 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Nuevo turno</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: html">
 
-<body>
+<th:block th:fragment="contenido">
 
-<h2>Crear turno</h2>
+    <h2 class="mb-4">Crear turno</h2>
 
-<form th:action="@{/admin/turnos/nuevo}" th:object="${turno}" method="post">
+    <!-- Mensajes -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-    Cliente ID:
-    <input type="number" th:field="*{clienteId}" />
-    <a th:href="@{/admin/clientes/nuevo}">
-        <button type="button">Crear cliente</button>
-    </a>
+    <form th:action="@{/admin/turnos/nuevo}" th:object="${turno}" method="post">
 
-    <br><br>
+        <div class="mb-3">
+            <label class="form-label">Cliente ID:</label>
+            <input type="number" th:field="*{clienteId}" class="form-control"/>
+            <a th:href="@{/admin/clientes/nuevo(from='turnos')}" class="btn btn-link">Crear cliente</a>
+        </div>
 
-    Profesional ID:
-    <input type="number" th:field="*{profesionalId}" />
-    <br><br>
+        <div class="mb-3">
+            <label class="form-label">Profesional ID:</label>
+            <input type="number" th:field="*{profesionalId}" class="form-control"/>
+        </div>
 
-    Fecha:
-    <input type="date" th:field="*{fecha}" />
-    <br><br>
+        <div class="mb-3">
+            <label class="form-label">Fecha:</label>
+            <input type="date" th:field="*{fecha}" class="form-control"/>
+        </div>
 
-    Hora:
-    <input type="time" th:field="*{hora}" />
-    <br><br>
+        <div class="mb-3">
+            <label class="form-label">Hora:</label>
+            <input type="time" th:field="*{hora}" class="form-control"/>
+        </div>
 
-    <button type="submit">Crear turno</button>
+        <button type="submit" class="btn btn-success"
+                onclick="return confirm('¿Seguro que quieres Crear el Cliente?')">
+            Crear turno
+        </button>
 
-</form>
+        <a href="/admin/dashboard" class="btn btn-secondary ms-2">Volver</a>
+    </form>
 
-<br>
-
-<a href="/admin/dashboard">Volver</a>
-
-</body>
+</th:block>
 </html>

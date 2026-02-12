@@ -1,7 +1,7 @@
 package com.elian.Sitema_backend_turnos.controller;
 
 import com.elian.Sitema_backend_turnos.dto.ActualizarTurnoDTO;
-import com.elian.Sitema_backend_turnos.dto.CrearClienteDTO;
+import com.elian.Sitema_backend_turnos.dto.ClienteDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.mapper.TurnoMapper;
@@ -49,12 +49,8 @@ public class AdminController {
     public String cancelarTurno(@PathVariable Long id,
                                 RedirectAttributes redirect) {
 
-        try {
             turnoService.cancelarTurno(id);
             redirect.addFlashAttribute("success", "Turno cancelado");
-        } catch (Exception e) {
-            redirect.addFlashAttribute("error", e.getMessage());
-        }
 
         return "redirect:/admin/turnos";
     }
@@ -65,7 +61,7 @@ public class AdminController {
 
         model.addAttribute(
                 "cliente",
-                new CrearClienteDTO(null, null, null, null, null)
+                new ClienteDTO(null, null, null, null, null)
         );
 
 
@@ -82,15 +78,25 @@ public class AdminController {
     }
 
     @PostMapping("/clientes/nuevo")
-    public String guardarCliente(@ModelAttribute CrearClienteDTO dto,
-                                 RedirectAttributes redirect) {
+    public String crearCliente(@ModelAttribute ClienteDTO dto,
+                               RedirectAttributes redirect) {
 
         clienteService.crearCliente(dto);
-
-        redirect.addFlashAttribute("success", "Cliente creado");
-
-        return "redirect:/admin/turnos/nuevo";
+        redirect.addFlashAttribute("success", "Cliente agregado correctamente");
+        return "redirect:/admin/clientes";
     }
+
+    @GetMapping("/clientes")
+    public String listarClientes(Model model) {
+
+        model.addAttribute(
+                "clientes",
+                clienteService.listarClientes()
+        );
+
+        return "admin-clientes";
+    }
+
 
 
 
@@ -161,12 +167,10 @@ public class AdminController {
     @PostMapping("/turnos/editar")
     public String guardarEdicion(@ModelAttribute ActualizarTurnoDTO dto,
                                  RedirectAttributes redirect) {
-        try {
+
             turnoService.actualizarTurno(dto.id(), dto);
             redirect.addFlashAttribute("success", "Turno actualizado correctamente");
-        } catch (Exception e) {
-            redirect.addFlashAttribute("error", e.getMessage());
-        }
+
 
         return "redirect:/admin/turnos";
     }

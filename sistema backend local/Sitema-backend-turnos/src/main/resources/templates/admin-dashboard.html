@@ -1,44 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Admin Dashboard</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: html">
 
-<body>
+<th:block th:fragment="contenido">
 
-<h1>Panel Admin</h1>
+    <div class="panel-container">
+        <h1 class="mb-4">Panel Admin</h1>
 
-<hr>
+        <!-- Mensajes -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-<h2>Turnos</h2>
+        <hr>
 
-<a href="/admin/turnos">
-    <button>Ver todos los turnos</button>
-</a>
+        <h2>Turnos</h2>
+        <a href="/admin/turnos" class="btn btn-primary mb-2">
+            Ver todos los turnos
+        </a>
+        <a href="/admin/turnos/nuevo" class="btn btn-success mb-2">
+            Crear turno
+        </a>
 
-<a href="/admin/turnos/nuevo">
-    <button>Crear turno</button>
-</a>
+        <hr>
 
-<hr>
+        <h2>Gestión</h2>
+        <a href="/admin/profesionales" class="btn btn-secondary mb-2">
+            Profesionales
+        </a>
+        <a href="/admin/clientes" class="btn btn-secondary mb-2">
+            Clientes
+        </a>
 
-<h2>Gestión</h2>
+        <hr>
 
-<a href="/admin/profesionales">
-    <button>Profesionales</button>
-</a>
+        <a href="/logout" class="btn btn-danger">
+            Cerrar sesión
+        </a>
+    </div>
 
-<a href="/admin/clientes">
-    <button>Clientes</button>
-</a>
-
-<hr>
-
-<a href="/logout">
-    <button>Cerrar sesión</button>
-</a>
-
-</body>
+</th:block>
 </html>
-
-

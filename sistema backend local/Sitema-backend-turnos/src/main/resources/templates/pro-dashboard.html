@@ -1,34 +1,31 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Dashboard Profesional</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: html">
 
-<body>
+<th:block th:fragment="contenido">
 
-<h1>Mis turnos</h1>
+    <h1 class="mb-4">Mis turnos</h1>
 
-<h3 th:text="'Fecha: ' + ${fecha}"></h3>
+    <h3 th:text="'Fecha: ' + ${fecha}" class="mb-3"></h3>
 
-<table border="1">
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="turno : ${turnos}">
+            <td th:text="${turno.fecha}"></td>
+            <td th:text="${turno.hora}"></td>
+            <td th:text="${turno.estado}"></td>
+        </tr>
+        </tbody>
+    </table>
 
-    <tr>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Estado</th>
-    </tr>
+    <a href="/logout" class="btn btn-danger mt-3">Cerrar sesión</a>
 
-    <tr th:each="turno : ${turnos}">
-        <td th:text="${turno.fecha}"></td>
-        <td th:text="${turno.hora}"></td>
-        <td th:text="${turno.estado}"></td>
-    </tr>
-
-</table>
-
-<br>
-
-<a href="/logout">Cerrar sesión</a>
-
-</body>
+</th:block>
 </html>

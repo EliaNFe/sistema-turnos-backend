@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Sistema</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        .badge-pendiente {
+    background-color: #ffe082; /* amarillo pastel */
+    color: #5d4037;            /* marrón suave para contraste */
+}
+
+.badge-confirmado {
+    background-color: #81d4fa; /* azul pastel */
+    color: #01579b;            /* azul más fuerte para texto */
+}
+
+.badge-completado {
+    background-color: #a5d6a7; /* verde pastel */
+    color: #1b5e20;            /* verde oscuro para contraste */
+}
+
+.badge-cancelado {
+    background-color: #ef9a9a; /* rojo pastel/coral */
+    color: #b71c1c;            /* rojo más fuerte para texto */
+}
+
+        .btn-editar {
+        background-color: #a3d2ca; /* verde menta suave */
+        color: #333;
+    }
+    .btn-editar:hover {
+        background-color: #76b5a0;
+        color: #fff;
+    }
+
+    .btn-cancelar {
+        background-color: #e0b0a0; /* coral/beige suave */
+        color: #fff;
+    }
+    .btn-cancelar:hover {
+        background-color: #c98f7a;
+        color: #fff;
+    }
+
+        body {
+            background: linear-gradient(135deg, #f5f5dc 0%, #e8e6e1 100%); /* beige-hueso */
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem 3rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            color: #333;
+            max-width: 800px;
+            width: 100%;
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1, h2 {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .alert {
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        /* Colores de estados */
+        .badge-pendiente {
+            background-color: #f0ad4e; /* dorado suave */
+            color: #fff;
+        }
+        .badge-confirmado {
+            background-color: #5bc0de; /* celeste */
+            color: #fff;
+        }
+        .badge-completado {
+            background-color: #5cb85c; /* verde */
+            color: #fff;
+        }
+        .badge-cancelado {
+            background-color: #d9534f; /* rojo coral */
+            color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container mt-4">
+    <div th:insert="~{::contenido}"></div>
+</div>
+</body>
+</html>

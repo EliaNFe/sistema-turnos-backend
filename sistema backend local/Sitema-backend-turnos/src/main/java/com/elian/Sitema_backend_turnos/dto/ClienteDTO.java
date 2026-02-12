@@ -1,6 +1,6 @@
 package com.elian.Sitema_backend_turnos.dto;
 
-public record CrearClienteDTO(
+public record ClienteDTO(
         String nombre,
         String apellido,
         String documento,
