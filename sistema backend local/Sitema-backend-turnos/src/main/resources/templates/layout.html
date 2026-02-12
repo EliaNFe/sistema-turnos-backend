@@ -138,7 +138,25 @@
     <div th:insert="~{::contenido}"></div>
 </div>
 <script>
-    function confirmarCancelacion(id) {
+    function confirmarGuardado(formId, mensaje) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: mensaje,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#a5d6a7', // verde pastel
+            cancelButtonColor: '#ef9a9a',  // coral pastel
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(formId).submit();
+            }
+        });
+        return false; // evita el submit automático
+    }
+
+function confirmarCancelacion(id) {
         Swal.fire({
             title: '¿Estás seguro?',
             text: "Esta acción cancelará el turno",
