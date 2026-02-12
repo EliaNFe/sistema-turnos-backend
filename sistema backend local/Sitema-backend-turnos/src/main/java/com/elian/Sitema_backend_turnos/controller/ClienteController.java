@@ -27,10 +27,7 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ClienteDTO>> listarClientes() {
-        return ResponseEntity.ok(clienteService.listarClientes());
-    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> buscarPorId(@PathVariable Long id) {

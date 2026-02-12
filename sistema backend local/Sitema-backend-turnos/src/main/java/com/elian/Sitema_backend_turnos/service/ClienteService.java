@@ -5,6 +5,8 @@ import com.elian.Sitema_backend_turnos.exception.ClientenotFoundException;
 import com.elian.Sitema_backend_turnos.mapper.ClienteMapper;
 import com.elian.Sitema_backend_turnos.model.Cliente;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +33,11 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    public List<ClienteDTO> listarClientes() {
-        return clienteRepository.findAll()
-                .stream()
-                .map(ClienteMapper::toDTO)
-                .toList();
+    public Page<ClienteDTO> listarClientes(Pageable pageable) {
+        return clienteRepository.findAll(pageable)
+                .map(ClienteMapper::toDTO);
     }
+
 
     public Cliente buscarPorId(Long id) {
         return clienteRepository.findById(id)

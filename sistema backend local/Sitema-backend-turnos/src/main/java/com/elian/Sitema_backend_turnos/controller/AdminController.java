@@ -9,6 +9,9 @@ import com.elian.Sitema_backend_turnos.model.Cliente;
 import com.elian.Sitema_backend_turnos.service.ClienteService;
 import com.elian.Sitema_backend_turnos.service.ProfesionalService;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -88,12 +91,14 @@ public class AdminController {
     }
 
     @GetMapping("/clientes")
-    public String listarClientes(Model model) {
+    public String listarClientes(@RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "5") int size,
+                                 Model model) {
 
-        model.addAttribute(
-                "clientes",
-                clienteService.listarClientes()
-        );
+        Page<ClienteDTO> clientesPage = clienteService.listarClientes(PageRequest.of(page, size));
+
+        model.addAttribute("clientesPage", clientesPage);
+        model.addAttribute("clientes", clientesPage);
 
         return "admin-clientes";
     }
