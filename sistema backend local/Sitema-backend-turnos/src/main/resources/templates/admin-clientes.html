@@ -8,7 +8,11 @@
 
     <a th:href="@{/admin/clientes/nuevo(from='clientes')}"
        class="btn btn-success mb-3">➕ Crear cliente</a>
-
+    <div class="mb-3">
+        <input type="text" id="buscadorTabla" class="form-control"
+               placeholder="🔍 Buscar por nombre, documento o especialidad..."
+               onkeyup="filtrarTabla()">
+    </div>
     <div class="table-container">
         <table class="table align-middle">
             <thead>
@@ -18,6 +22,7 @@
                 <th>Documento</th>
                 <th>Email</th>
                 <th>Teléfono</th>
+                <th>Estado</th>
                 <th>Acciones</th>
             </tr>
             </thead>
@@ -29,15 +34,31 @@
                 <td th:text="${c.email}"></td>
                 <td th:text="${c.telefono}"></td>
                 <td>
-                    <a th:href="@{/admin/clientes/editar/{id}(id=${c.id})}"
-                       class="btn btn-editar btn-sm">
-                         Editar
-                    </a>
+                    <span th:if="${c.activo}" class="badge bg-success">Activo</span>
+                    <span th:unless="${c.activo}" class="badge bg-secondary">Inactivo</span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a th:href="@{/admin/clientes/editar/{id}(id=${c.id})}" class="btn btn-sm btn-editar">Editar</a>
+
+                        <button th:if="${c.activo}" type="button" class="btn btn-sm btn-cancelar"
+                                th:onclick="'confirmarDesactivarCliente(' + ${c.id} + ')'">
+                            Baja
+                        </button>
+
+                        <button th:unless="${c.activo}" type="button" class="btn btn-sm btn-success"
+                                th:onclick="'confirmarActivarCliente(' + ${c.id} + ')'">
+                            Reactivar
+                        </button>
+
+                    </div>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+
+
 
     <!-- Controles de paginación -->
     <div class="mt-3 d-flex justify-content-between align-items-center">
@@ -54,6 +75,71 @@
     </div>
 
     <a href="/admin/dashboard" class="btn btn-secondary mt-3">⬅ Volver</a>
+
+    <script>
+        function enviarPost(url) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function confirmarDesactivarCliente(id) {
+            Swal.fire({
+                title: '¿Desactivar cliente?',
+                text: "No podrá sacar nuevos turnos.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, desactivar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    enviarPost('/admin/clientes/desactivar/' + id);
+                }
+            })
+        }
+
+        function confirmarActivarCliente(id) {
+            Swal.fire({
+                title: '¿Reactivar cliente?',
+                text: "El cliente volverá a estar activo.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, reactivar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // CORREGIDO: Ahora apunta a /activar/
+                    enviarPost('/admin/clientes/activar/' + id);
+                }
+            });
+        }
+
+        function filtrarTabla() {
+    let input = document.getElementById("buscadorTabla");
+    let filter = input.value.toLowerCase();
+    let table = document.querySelector("table");
+    let tr = table.getElementsByTagName("tr");
+
+    // Empezamos desde 1 para saltar el encabezado (thead)
+    for (let i = 1; i < tr.length; i++) {
+        let visible = false;
+        let td = tr[i].getElementsByTagName("td");
+
+        // Recorre cada celda de la fila para ver si coincide con la búsqueda
+        for (let j = 0; j < td.length; j++) {
+            if (td[j] && td[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                visible = true;
+                break;
+            }
+        }
+        tr[i].style.display = visible ? "" : "none";
+    }
+}
+    </script>
 
 </th:block>
 </html>

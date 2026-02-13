@@ -46,7 +46,8 @@ public class ProfesionalService {
         return new ProfesionalDTO(
                 p.getId(),
                 p.getNombre(),
-                p.getEspecialidad()
+                p.getEspecialidad(),
+                p.isActivo()
         );
     }
 
@@ -66,11 +67,30 @@ public class ProfesionalService {
     }
 
 
-    public void eliminar(Long id) {
-        if (!profesionalRepository.existsById(id)) {
-            throw new ProfesionalNotFoundException(id);
-        }
-        profesionalRepository.deleteById(id);
+    public void desactivar(Long id) {
+        Profesional p = profesionalRepository.findById(id)
+                .orElseThrow(() -> new ProfesionalNotFoundException(id));
+
+        p.setActivo(false);
+        profesionalRepository.save(p);
+    }
+
+    public void activar(Long id) {
+        Profesional p = profesionalRepository.findById(id)
+                .orElseThrow(() -> new ProfesionalNotFoundException(id));
+
+        p.setActivo(true);
+        profesionalRepository.save(p);
+    }
+
+
+
+    // Y para que en los combos de "Nuevo Turno" no aparezcan los inactivos:
+    public List<Profesional> listarActivos() {
+        return profesionalRepository.findAll()
+                .stream()
+                .filter(Profesional::isActivo)
+                .toList();
     }
 }
 

@@ -23,6 +23,8 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private boolean activo = true;
+
     @NotBlank
     @Column(nullable = false)
     private String nombre;

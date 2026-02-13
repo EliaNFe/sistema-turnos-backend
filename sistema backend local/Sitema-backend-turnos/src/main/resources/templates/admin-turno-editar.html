@@ -3,46 +3,85 @@
       th:replace="layout :: html">
 
 <th:block th:fragment="contenido">
-    <h1 class="mb-4">Editar turno</h1>
+    <h1 class="mb-4 fw-bold">Editar Turno</h1>
 
-    <form th:action="@{/admin/turnos/editar}" th:object="${turno}" method="post" id="formEditarTurno">
-        <input type="hidden" th:field="*{id}" />
+    <div class="table-container p-4">
+        <form th:action="@{/admin/turnos/editar}" th:object="${turno}" method="post" id="formEditarTurno">
+            <input type="hidden" th:field="*{id}" />
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Fecha:</label>
-                <input type="date" th:field="*{fecha}" class="form-control"/>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Fecha:</label>
+                    <input type="date" th:field="*{fecha}" class="form-control" required/>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Hora:</label>
+                    <input type="time" th:field="*{hora}" class="form-control" required/>
+                </div>
             </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Hora:</label>
-                <input type="time" th:field="*{hora}" class="form-control"/>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Estado del Turno:</label>
+                <select th:field="*{estado}" class="form-select">
+                    <option th:each="est : ${T(com.elian.Sitema_backend_turnos.model.EstadoTurno).values()}"
+                            th:value="${est}"
+                            th:text="${#strings.capitalize(#strings.toLowerCase(est))}"></option>
+                </select>
             </div>
-        </div>
 
-        <div class="mb-3">
-            <label class="form-label">Estado:</label>
-            <select th:field="*{estado}" class="form-select">
-                <option value="PENDIENTE">Pendiente</option>
-                <option value="CONFIRMADO">Confirmado</option>
-                <option value="COMPLETADO">Completado</option>
-                <option value="CANCELADO">Cancelado</option>
-            </select>
-        </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Cambiar Profesional:</label>
+                <input type="text" id="inputProf" list="listaProfs" class="form-control"
+                       placeholder="Escribí para buscar profesional..."
+                       oninput="actualizarProfId(this)">
 
-        <div class="mb-3">
-            <label class="form-label">Cambiar Profesional:</label>
-            <input type="text" list="listaProfs" class="form-control" th:placeholder="${turno.profesionalId}"/>
-            <input type="hidden" th:field="*{profesionalId}" id="profIdEditar"/>
-            <datalist id="listaProfs">
-                <option th:each="p : ${profesionales}" th:value="${p.id}" th:text="${p.nombre}"></option>
-            </datalist>
-        </div>
+                <input type="hidden" th:field="*{profesionalId}" id="profIdEditar"/>
 
-        <button type="button" class="btn btn-editar"
-                onclick="confirmarGuardado('formEditarTurno', '¿Seguro que querés actualizar el turno?')">
-            Actualizar
-        </button>
-        <a href="/admin/turnos" class="btn btn-secondary ms-2">Volver</a>
-    </form>
+                <datalist id="listaProfs">
+                    <option th:each="p : ${profesionales}"
+                            th:if="${p.activo}"
+                            th:data-id="${p.id}"
+                            th:value="${p.nombre}"></option>
+                </datalist>
+                <small class="text-muted">Profesional actual ID: <span th:text="*{profesionalId}"></span></small>
+            </div>
+
+            <div class="border-top pt-3">
+                <button type="button" class="btn btn-primary px-4"
+                        onclick="confirmarGuardado('formEditarTurno', '¿Estás seguro de que querés actualizar los datos de este turno?')">
+                    Guardar Cambios
+                </button>
+                <a href="/admin/turnos" class="btn btn-secondary ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <script th:inline="javascript">
+        function actualizarProfId(input) {
+            const list = document.getElementById('listaProfs');
+            const hiddenInput = document.getElementById('profIdEditar');
+            const options = list.options;
+
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === input.value) {
+                    hiddenInput.value = options[i].getAttribute('data-id');
+                    break;
+                }
+            }
+        }
+
+        // Al cargar la página, si ya hay un profesional, se podría setear el nombre en el input visible
+        window.onload = function() {
+            const currentId = document.getElementById('profIdEditar').value;
+            const options = document.getElementById('listaProfs').options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].getAttribute('data-id') == currentId) {
+                    document.getElementById('inputProf').value = options[i].value;
+                    break;
+                }
+            }
+        };
+    </script>
+
 </th:block>
 </html>

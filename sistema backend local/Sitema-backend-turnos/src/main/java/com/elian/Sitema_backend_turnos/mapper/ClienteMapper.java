@@ -40,7 +40,8 @@ public class ClienteMapper {
                 c.getDocumento(),
                 c.getTelefono(),
                 c.getEmail(),
-                c.getId()
+                c.getId(),
+                c.isActivo()
         );
     }
 

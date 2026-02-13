@@ -6,7 +6,8 @@ public record ClienteDTO(
         String documento,
         String telefono,
         String email,
-        Long id
+        Long id,
+        boolean activo
 ) {}
 
 

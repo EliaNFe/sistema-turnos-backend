@@ -1,31 +1,63 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="layout :: html">
-
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <th:block th:fragment="contenido">
 
-    <h1 class="mb-4">Mis turnos</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold">Mi Agenda</h1>
+            <p class="text-muted">Hola, <span class="fw-bold" th:text="${username}"></span>. Estos son tus turnos.</p>
+        </div>
+        <form th:action="@{/profesional/dashboard}" method="get" class="d-flex align-items-center gap-2">
+            <input type="date" name="fecha" class="form-control" th:value="${fechaSeleccionada}" onchange="this.form.submit()">
+        </form>
+    </div>
 
-    <h3 th:text="'Fecha: ' + ${fecha}" class="mb-3"></h3>
+    <div class="row g-3">
+        <div th:each="t : ${turnos}" class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px; background: rgba(255,255,255,0.7);">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-4 fw-bold text-primary" th:text="${t.hora}">00:00</div>
+                        <div class="fw-bold text-dark" th:text="${t.clienteNombre}">Nombre Cliente</div>
+                        <small class="text-muted" th:text="${t.servicioNombre}">Servicio</small>
+                    </div>
+                    <div class="text-end">
+                        <span th:class="'badge mb-2 d-block badge-' + ${t.estado.toString().toLowerCase()}"
+                              th:text="${t.estado}">Pendiente</span>
 
-    <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-        <tr>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Estado</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="turno : ${turnos}">
-            <td th:text="${turno.fecha}"></td>
-            <td th:text="${turno.hora}"></td>
-            <td th:text="${turno.estado}"></td>
-        </tr>
-        </tbody>
-    </table>
+                        <div class="btn-group">
+                            <button th:if="${t.estado.toString() == 'CONFIRMADO'}"
+                                    class="btn btn-sm btn-success"
+                                    th:onclick="'cambiarEstado(' + ${t.id} + ', \'COMPLETADO\')'">
+                                ✓ Atendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <a href="/logout" class="btn btn-danger mt-3">Cerrar sesión</a>
+        <div th:if="${#lists.isEmpty(turnos)}" class="text-center py-5">
+            <div class="fs-1">☕</div>
+            <h4 class="text-muted">No tenés turnos para esta fecha.</h4>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <a href="/logout" class="btn btn-outline-danger">Cerrar Sesión</a>
+    </div>
+
+    <script>
+        function cambiarEstado(id, nuevoEstado) {
+            // Aquí podés usar un fetch o un form dinámico para actualizar el estado
+            // sin ir a la pantalla de edición del admin.
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/turnos/cambiar-estado/' + id + '?estado=' + nuevoEstado;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 
 </th:block>
 </html>

@@ -22,6 +22,8 @@ public class Profesional {
     @Column(nullable = false)
     private String nombre;
 
+    private boolean activo = true;
+
     @Column(nullable = false)
     private String especialidad;
 }

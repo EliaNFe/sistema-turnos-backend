@@ -27,7 +27,7 @@ public class ClienteService {
         if (clienteRepository.existsByDocumento(dto.documento())) {
             throw new IllegalArgumentException("Ya existe un cliente con ese documento");
         }
-        if (clienteRepository.existsByDocumento(dto.email())) {
+        if (clienteRepository.existsByEmail(dto.email())) {
             throw new IllegalArgumentException("Ya existe un cliente con ese email");
         }
 
@@ -43,6 +43,13 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
+
+    public List<ClienteDTO> listarClientesActivosSinPaginacion() {
+        return clienteRepository.findByActivoTrue()
+                .stream()
+                .map(ClienteMapper::toDTO) // Usamos tu mapper existente
+                .toList();
+    }
 
     public Page<ClienteDTO> listarClientes(Pageable pageable) {
         return clienteRepository.findAll(pageable)
@@ -88,10 +95,25 @@ public class ClienteService {
         return clienteRepository.save(existente);
     }
 
-    public void eliminar(Long id) {
-        if (!clienteRepository.existsById(id)) {
-            throw new ClientenotFoundException(id);
-        }
-        clienteRepository.deleteById(id);
+    public void desactivarCliente(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        cliente.setActivo(false);
+        clienteRepository.save(cliente);
+    }
+
+    public void activarCliente(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        cliente.setActivo(true);
+        clienteRepository.save(cliente);
+    }
+
+
+    public List<ClienteDTO> listarClientesActivos() {
+        return clienteRepository.findAll().stream()
+                .filter(Cliente::isActivo)
+                .map(ClienteMapper::toDTO)
+                .toList();
     }
 }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<th:block th:fragment="contenido">
+
+    <h2 class="mb-4">Registrar Nuevo Profesional</h2>
+
+    <div class="table-container p-4">
+        <form th:action="@{/admin/profesionales/nuevo}" th:object="${profesional}" method="post" id="formProf">
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Nombre Completo:</label>
+                <input type="text" th:field="*{nombre}" class="form-control" placeholder="Ej: Dr. Juan Pérez" required/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Especialidad:</label>
+                <input type="text" th:field="*{especialidad}" class="form-control" placeholder="Ej: Odontología, Estética..." required/>
+            </div>
+
+            <div class="mt-4">
+                <button type="button" class="btn btn-success px-4"
+                        onclick="confirmarGuardado('formProf', '¿Querés dar de alta a este profesional?')">
+                    Guardar Profesional
+                </button>
+                <a href="/admin/profesionales" class="btn btn-secondary ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</th:block>
+</html>

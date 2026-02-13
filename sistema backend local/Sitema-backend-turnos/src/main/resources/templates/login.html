@@ -1,71 +1,129 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <title>Acceso al Sistema</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
         body {
-            background: linear-gradient(135deg, #f5f5dc 0%, #e8e6e1 100%); /* beige-hueso */
+            background: linear-gradient(135deg, #f5f5dc 0%, #d2cfc4 100%);
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 2rem 3rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-            width: 350px;
-            animation: slideIn 0.8s ease;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 25px;
+            padding: 3rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .logo-placeholder {
+            font-size: 3rem;
+            margin-bottom: 1rem;
         }
 
         h1 {
             font-weight: 600;
-            color: #444;
-            text-align: center;
-            margin-bottom: 1.5rem;
+            color: #2d3436;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: #636e72;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
         }
 
         .form-control {
-            border-radius: 10px;
-            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: #fff;
+            border-color: #a7c7e7;
+            box-shadow: 0 0 0 4px rgba(167, 199, 231, 0.2);
+            outline: none;
         }
 
         .btn-login {
-            background-color: #a7c7e7; /* azul pastel */
-            color: #333;
-            border-radius: 10px;
-            width: 100%;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .btn-login:hover {
-            background-color: #7fa6d2;
+            background: #2d3436;
             color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-login:hover {
+            background: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .alert-error {
+            background: rgba(255, 118, 117, 0.2);
+            color: #d63031;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 118, 117, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
+
 <div class="login-container">
-    <h1>Iniciar Sesión</h1>
+    <div class="logo-placeholder">📜</div>
+    <h1>Bienvenido</h1>
+    <p class="subtitle">Ingresa tus credenciales para continuar</p>
+
+    <div th:if="${param.error}" class="alert-error">
+        Usuario o contraseña incorrectos.
+    </div>
+
+    <div th:if="${param.logout}" class="alert alert-info" style="border-radius: 12px; font-size: 0.85rem;">
+        Has cerrado sesión correctamente.
+    </div>
+
     <form th:action="@{/login}" method="post">
-        <input type="text" name="username" class="form-control" placeholder="Usuario" required>
+        <input type="text" name="username" class="form-control" placeholder="Nombre de usuario" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
-        <button type="submit" class="btn btn-login">Entrar</button>
+
+        <button type="submit" class="btn btn-login">ENTRAR</button>
     </form>
+
+    <div class="mt-4">
+        <small class="text-muted">¿Problemas para entrar? Contacta al soporte.</small>
+    </div>
 </div>
+
 </body>
 </html>

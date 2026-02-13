@@ -11,6 +11,7 @@ import com.elian.Sitema_backend_turnos.model.*;
 import com.elian.Sitema_backend_turnos.repository.ClienteRepository;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
 import com.elian.Sitema_backend_turnos.repository.TurnoRepository;
+import com.elian.Sitema_backend_turnos.repository.UsuarioRepository;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,16 +32,20 @@ public class TurnoService {
     private final ClienteRepository clienteRepository;
     private final ProfesionalRepository profesionalRepository;
     private final SecurityService securityService;
+    private final TurnoMapper turnoMapper;
+    private final UsuarioRepository usuarioRepository;
 
     public TurnoService(
             TurnoRepository turnoRepository,
             ClienteRepository clienteRepository,
-            ProfesionalRepository profesionalRepository, SecurityService securityService
+            ProfesionalRepository profesionalRepository, SecurityService securityService, TurnoMapper turnoMapper, UsuarioRepository usuarioRepository
     ) {
         this.turnoRepository = turnoRepository;
         this.clienteRepository = clienteRepository;
         this.profesionalRepository = profesionalRepository;
         this.securityService = securityService;
+        this.turnoMapper = turnoMapper;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Transactional
@@ -72,6 +77,15 @@ public class TurnoService {
 
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new ClientenotFoundException(dto.clienteId()));
+
+        if (!profesional.isActivo()) {
+            throw new IllegalStateException("El profesional seleccionado no está activo.");
+        }
+
+// VALIDACIÓN EXTRA
+        if (!cliente.isActivo()) {
+            throw new IllegalStateException("El cliente seleccionado no está activo.");
+        }
 
         // Bloqueo pesimista para concurrencia
         Optional<Turno> turnoExistente = turnoRepository.findByProfesionalIdAndFechaAndHora(
@@ -119,15 +133,16 @@ public class TurnoService {
                 .orElseThrow(() -> new TurnoNotFoundException(turnoId));
 
         // Cambio de profesional (opcional)
-        if (dto.profesionalId() != null &&
-                !dto.profesionalId().equals(turno.getProfesional().getId())) {
+        if (dto.profesionalId() != null && !dto.profesionalId().equals(turno.getProfesional().getId())) {
+            Profesional nuevoProfesional = profesionalRepository.findById(dto.profesionalId())
+                    .orElseThrow(() -> new ProfesionalNotFoundException(dto.profesionalId()));
 
-            Profesional profesional = profesionalRepository
-                    .findById(dto.profesionalId())
-                    .orElseThrow(() ->
-                            new ProfesionalNotFoundException(dto.profesionalId()));
+            // Validación de Baja Lógica
+            if (!nuevoProfesional.isActivo()) {
+                throw new IllegalStateException("No se puede asignar el turno a un profesional inactivo.");
+            }
 
-            turno.setProfesional(profesional);
+            turno.setProfesional(nuevoProfesional);
         }
 
         // Validar solo si cambian fecha/hora
@@ -248,9 +263,9 @@ public class TurnoService {
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
 
-        if (turno.getEstado() != EstadoTurno.PENDIENTE) {
+        if (turno.getEstado() != EstadoTurno.PENDIENTE || turno.getEstado() != EstadoTurno.CONFIRMADO) {
             throw new IllegalStateException(
-                    "No se puede cancelar un turno que no está pendiente"
+                    "No se puede cancelar un turno que no está pendiente o confirmado"
             );
         }
 
@@ -259,6 +274,7 @@ public class TurnoService {
 
         return TurnoMapper.toDTO(turno);
     }
+
 
     public Page<TurnoDTO> listarFiltradoYPaginado(
             String estado,
@@ -301,6 +317,23 @@ public class TurnoService {
     }
 
 
+    public List<TurnoDTO> listarTurnosPorEmailProfesionalYFecha(String username, LocalDate fecha) {
+        //  Buscamos al usuario por su username para obtener su Profesional vinculado
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getProfesional() == null) {
+            throw new RuntimeException("El usuario no tiene un perfil profesional vinculado");
+        }
+
+        // tenemos el ID del profesional, buscamos sus turnos
+        Long profesionalId = usuario.getProfesional().getId();
+
+        return turnoRepository.findByProfesionalIdAndFechaOrderByHoraAsc(profesionalId, fecha)
+                .stream()
+                .map(turnoMapper::toDTO2)
+                .collect(Collectors.toList());
+    }
 
 }
 

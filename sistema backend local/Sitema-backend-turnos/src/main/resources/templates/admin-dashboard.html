@@ -78,30 +78,45 @@
     </div>
 
     <div class="recent-activity-container">
-        <h4 class="mb-3 fw-bold">📅 Últimos Turnos Registrados</h4>
-        <div class="table-container p-0">
-            <table class="table align-middle m-0">
-                <thead class="table-light">
-                <tr>
-                    <th>Fecha/Hora</th>
-                    <th>Cliente</th>
-                    <th>Estado</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="t, iter : ${turnos}" th:if="${iter.index < 5}">
-                    <td>
-                        <span th:text="${t.fecha}"></span> <br>
-                        <small class="text-muted" th:text="${t.hora}"></small>
-                    </td>
-                    <td th:text="${t.clienteNombre}"></td>
-                    <td>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold m-0">📅 Actividad Reciente</h4>
+            <button class="btn btn-sm btn-outline-secondary" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseLista"
+                    aria-expanded="true">
+                Ocultar/Mostrar
+            </button>
+        </div>
+
+        <div class="collapse show" id="collapseLista">
+            <div class="table-container p-0 overflow-hidden" style="border-radius: 15px; border: 1px solid #eee;">
+                <table class="table align-middle m-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Fecha/Hora</th>
+                        <th>Cliente</th>
+                        <th>Estado</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t, iter : ${turnos}" th:if="${iter.index < 5}">
+                        <td>
+                            <span th:text="${t.fecha}"></span> <br>
+                            <small class="text-muted" th:text="${t.hora}"></small>
+                        </td>
+                        <td th:text="${t.clienteNombre}"></td>
+                        <td>
                             <span th:class="'badge badge-' + ${t.estado.toString().toLowerCase()}"
                                   th:text="${t.estado}"></span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a href="/admin/turnos" class="text-decoration-none small fw-bold">Ver todos los turnos →</a>
+            </div>
         </div>
     </div>
 

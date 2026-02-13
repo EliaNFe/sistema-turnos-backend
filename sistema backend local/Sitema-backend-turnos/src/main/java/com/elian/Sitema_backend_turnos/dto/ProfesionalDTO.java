@@ -3,5 +3,6 @@ package com.elian.Sitema_backend_turnos.dto;
 public record ProfesionalDTO(
         Long id,
         String nombre,
-        String especialidad
+        String especialidad,
+        boolean activo
 ) {}

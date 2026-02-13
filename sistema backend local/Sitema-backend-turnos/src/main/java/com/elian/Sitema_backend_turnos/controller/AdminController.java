@@ -52,18 +52,27 @@ public class AdminController {
         return "admin-dashboard";
     }
 
-    @PostMapping("/turnos/cancelar/{id}")
-    public String cancelarTurno(@PathVariable Long id,
-                                RedirectAttributes redirect) {
-        turnoService.cancelarTurno(id);
-        redirect.addFlashAttribute("success", "Turno cancelado");
-        return "redirect:/admin/turnos";
-    }
+    //CLIENTESSSS
 
     @GetMapping("/clientes/nuevo")
     public String nuevoCliente(Model model) {
         model.addAttribute("cliente", new CrearClienteDTO(null, null, null, null, null));
         return "cliente-form";
+    }
+
+
+    @PostMapping("/clientes/desactivar/{id}")
+    public String desactivarCliente(@PathVariable Long id, RedirectAttributes redirect) {
+        clienteService.desactivarCliente(id);
+        redirect.addFlashAttribute("success", "Cliente desactivado correctamente");
+        return "redirect:/admin/clientes";
+    }
+
+    @PostMapping("/clientes/activar/{id}")
+    public String activarCliente(@PathVariable Long id, RedirectAttributes redirect) {
+        clienteService.activarCliente(id); // Este pone activo = true
+        redirect.addFlashAttribute("success", "Cliente reactivado con éxito.");
+        return "redirect:/admin/clientes";
     }
 
     @PostMapping("/clientes/nuevo")
@@ -93,6 +102,8 @@ public class AdminController {
         return "cliente-form-editar";
     }
 
+
+
     @PostMapping("/clientes/editar/{id}")
     public String actualizarCliente(@PathVariable Long id,
                                     @ModelAttribute ClienteDTO dto,
@@ -104,11 +115,23 @@ public class AdminController {
     }
 
     // --- TURNOS ---
+
+    @PostMapping("/turnos/cancelar/{id}")
+    public String cancelarTurno(@PathVariable Long id,
+                                RedirectAttributes redirect) {
+        turnoService.cancelarTurno(id);
+        redirect.addFlashAttribute("success", "Turno cancelado");
+        return "redirect:/admin/turnos";
+    }
+
     @GetMapping("/turnos/nuevo")
     public String nuevoTurno(Model model) {
         model.addAttribute("turno", new CrearTurnoDTO(null, null, null, null));
-        model.addAttribute("clientes", clienteService.listarClientesSinPaginacion());
-        model.addAttribute("profesionales", profesionalService.listarProfesionales());
+
+        // AQUÍ: Solo pasamos los que están activos para el combo/datalist
+        model.addAttribute("clientes", clienteService.listarClientesActivosSinPaginacion());
+        model.addAttribute("profesionales", profesionalService.listarActivos());
+
         return "turno-form";
     }
 
@@ -159,4 +182,47 @@ public class AdminController {
         redirect.addFlashAttribute("success", "Turno actualizado correctamente");
         return "redirect:/admin/turnos";
     }
+
+    //-- profesionaless --
+
+    @GetMapping("/profesionales")
+    public String listarProfesionales(Model model) {
+        // Mapeamos la lista de entidades a DTOs para la vista
+        List<ProfesionalDTO> lista = profesionalService.listarProfesionales()
+                .stream()
+                .map(p -> new ProfesionalDTO(p.getId(), p.getNombre(), p.getEspecialidad(), p.isActivo()))
+                .toList();
+
+        model.addAttribute("profesionales", lista);
+        return "admin-profesionales";
+    }
+
+    @GetMapping("/profesionales/nuevo")
+    public String formularioProfesional(Model model) {
+        // Usamos el record CrearProfesionalDTO con nulls para inicializar
+        model.addAttribute("profesional", new CrearProfesionalDTO(null, null));
+        return "profesional-form";
+    }
+
+    @PostMapping("/profesionales/nuevo")
+    public String guardarProfesional(@ModelAttribute CrearProfesionalDTO dto, RedirectAttributes redirect) {
+        profesionalService.crearProfesional(dto);
+        redirect.addFlashAttribute("success", "Profesional registrado con éxito");
+        return "redirect:/admin/profesionales";
+    }
+
+    @PostMapping("/profesionales/desactivar/{id}")
+    public String desactivarProfesional(@PathVariable Long id, RedirectAttributes redirect) {
+        profesionalService.desactivar(id);
+        redirect.addFlashAttribute("success", "El profesional ha sido desactivado.");
+        return "redirect:/admin/profesionales";
+    }
+
+    @PostMapping("/profesionales/activar/{id}")
+    public String activarProfesional(@PathVariable Long id, RedirectAttributes redirect) {
+        profesionalService.activar(id); // Debes crear el método .activar(id) en tu ProfesionalService
+        redirect.addFlashAttribute("success", "El profesional ha sido reactivado.");
+        return "redirect:/admin/profesionales";
+    }
+
 }

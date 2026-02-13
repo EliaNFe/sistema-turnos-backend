@@ -9,7 +9,10 @@
     <form th:action="@{'/admin/clientes/editar/' + ${cliente.id}}"
           th:object="${cliente}"
           method="post"
+          id="formEditarCliente"
           class="needs-validation panel-container">
+
+        <input type="hidden" th:field="*{activo}">
 
         <div class="mb-3">
             <label class="form-label">Nombre:</label>
@@ -36,8 +39,8 @@
             <input type="email" th:field="*{email}" class="form-control">
         </div>
 
-        <button type="submit" class="btn btn-primary"
-                onclick="return confirm('¿Seguro que quieres guardar los cambios?')">
+        <button type="button" class="btn btn-primary"
+                onclick="confirmarGuardado('formEditarCliente', '¿Deseas guardar los cambios en este perfil?')">
             Guardar cambios
         </button>
 
@@ -63,7 +66,7 @@
         }
 
         .form-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #333;
         }
 
@@ -71,6 +74,7 @@
             border-radius: 10px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             font-family: 'Poppins', sans-serif;
+            padding: 0.6rem 1.5rem;
         }
         .btn:hover {
             transform: translateY(-2px);

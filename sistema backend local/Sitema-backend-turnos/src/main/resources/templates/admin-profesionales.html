@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<th:block th:fragment="contenido">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestión de Profesionales</h1>
+        <a href="/admin/profesionales/nuevo" class="btn btn-success">➕ Nuevo Profesional</a>
+    </div>
+    <div class="mb-3">
+        <input type="text" id="buscadorTabla" class="form-control"
+               placeholder="🔍 Buscar por nombre, documento o especialidad..."
+               onkeyup="filtrarTabla()">
+    </div>
+    <div class="table-container">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre y Apellido</th>
+                <th>Especialidad</th>
+                <th>Estado</th> <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${profesionales}">
+                <td th:text="${p.id}"></td>
+                <td><div class="fw-bold" th:text="${p.nombre}"></div></td>
+                <td><span class="badge bg-light text-dark border" th:text="${p.especialidad}"></span></td>
+                <td>
+                    <span th:if="${p.activo}" class="badge bg-success">Activo</span>
+                    <span th:unless="${p.activo}" class="badge bg-secondary">Inactivo</span>
+                </td>
+                <td class="text-end">
+                    <div class="btn-group">
+                        <a th:href="@{/admin/profesionales/editar/{id}(id=${p.id})}"
+                           class="btn btn-editar btn-sm">Editar</a>
+
+                        <button th:if="${p.activo}" type="button" class="btn btn-cancelar btn-sm"
+                                th:onclick="'confirmarEstadoProf(' + ${p.id} + ', false)'">
+                            Baja
+                        </button>
+
+                        <button th:unless="${p.activo}" type="button" class="btn btn-success btn-sm"
+                                th:onclick="'confirmarEstadoProf(' + ${p.id} + ', true)'">
+                            Reactivar
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="/admin/dashboard" class="btn btn-secondary">
+            ⬅ Volver al Panel Principal
+        </a>
+    </div>
+
+    <script>
+        function confirmarEstadoProf(id, activar) {
+            const titulo = activar ? '¿Reactivar profesional?' : '¿Desactivar profesional?';
+            const texto = activar ? 'Volverá a estar disponible para turnos.' : 'Ya no aparecerá disponible para nuevos turnos.';
+            const url = activar ? '/admin/profesionales/activar/' + id : '/admin/profesionales/desactivar/' + id;
+
+            Swal.fire({
+                title: titulo,
+                text: texto,
+                icon: activar ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonColor: activar ? '#198754' : '#ffb3b3',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: activar ? 'Sí, reactivar' : 'Sí, desactivar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            })
+        }
+
+        function filtrarTabla() {
+    let input = document.getElementById("buscadorTabla");
+    let filter = input.value.toLowerCase();
+    let table = document.querySelector("table");
+    let tr = table.getElementsByTagName("tr");
+
+    // Empezamos desde 1 para saltar el encabezado (thead)
+    for (let i = 1; i < tr.length; i++) {
+        let visible = false;
+        let td = tr[i].getElementsByTagName("td");
+
+        // Recorre cada celda de la fila para ver si coincide con la búsqueda
+        for (let j = 0; j < td.length; j++) {
+            if (td[j] && td[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                visible = true;
+                break;
+            }
+        }
+        tr[i].style.display = visible ? "" : "none";
+    }
+}
+    </script>
+
+</th:block>
+</html>
