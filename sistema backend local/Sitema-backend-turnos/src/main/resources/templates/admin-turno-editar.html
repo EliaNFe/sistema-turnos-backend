@@ -3,49 +3,46 @@
       th:replace="layout :: html">
 
 <th:block th:fragment="contenido">
-
     <h1 class="mb-4">Editar turno</h1>
 
-    <form th:action="@{/admin/turnos/editar}" th:object="${turno}" method="post" class="needs-validation">
-
-        <!-- ID oculto -->
+    <form th:action="@{/admin/turnos/editar}" th:object="${turno}" method="post" id="formEditarTurno">
         <input type="hidden" th:field="*{id}" />
 
-        <div class="mb-3">
-            <label class="form-label">Fecha:</label>
-            <input type="date" th:field="*{fecha}" class="form-control"/>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Hora:</label>
-            <input type="time" th:field="*{hora}" class="form-control"/>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Fecha:</label>
+                <input type="date" th:field="*{fecha}" class="form-control"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Hora:</label>
+                <input type="time" th:field="*{hora}" class="form-control"/>
+            </div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Estado:</label>
             <select th:field="*{estado}" class="form-select">
                 <option value="PENDIENTE">Pendiente</option>
+                <option value="CONFIRMADO">Confirmado</option>
                 <option value="COMPLETADO">Completado</option>
                 <option value="CANCELADO">Cancelado</option>
-                <option value="CONFIRMADO">Confirmado</option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">ID Profesional (opcional):</label>
-            <input type="number" th:field="*{profesionalId}" class="form-control"/>
+            <label class="form-label">Cambiar Profesional:</label>
+            <input type="text" list="listaProfs" class="form-control" th:placeholder="${turno.profesionalId}"/>
+            <input type="hidden" th:field="*{profesionalId}" id="profIdEditar"/>
+            <datalist id="listaProfs">
+                <option th:each="p : ${profesionales}" th:value="${p.id}" th:text="${p.nombre}"></option>
+            </datalist>
         </div>
 
-        <button type="submit" class="btn btn-primary"
-                onclick="return confirm('¿Seguro que querés actualizar el turno?')">
+        <button type="button" class="btn btn-editar"
+                onclick="confirmarGuardado('formEditarTurno', '¿Seguro que querés actualizar el turno?')">
             Actualizar
         </button>
-
-        <a href="/admin/turnos" class="btn btn-secondary ms-2">
-            Volver
-        </a>
-
+        <a href="/admin/turnos" class="btn btn-secondary ms-2">Volver</a>
     </form>
-
 </th:block>
 </html>

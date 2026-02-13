@@ -56,7 +56,7 @@ public class TurnoService {
 
         if (dto.fecha().isBefore(hoy) ||
                 (dto.fecha().isEqual(hoy) && dto.hora().isBefore(ahora))) {
-            throw new IllegalStateException("No se pueden crear turnos en el pasado");
+            throw new IllegalArgumentException("No se pueden crear turnos en el pasado");
         }
 
         if (dto.clienteId() == null || dto.profesionalId() == null) {

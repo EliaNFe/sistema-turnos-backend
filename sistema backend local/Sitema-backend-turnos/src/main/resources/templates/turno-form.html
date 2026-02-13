@@ -3,24 +3,33 @@
       th:replace="layout :: html">
 
 <th:block th:fragment="contenido">
-
     <h2 class="mb-4">Crear turno</h2>
 
-    <!-- Mensajes -->
-    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-
-    <form th:action="@{/admin/turnos/nuevo}" th:object="${turno}" method="post">
+    <form th:action="@{/admin/turnos/nuevo}" th:object="${turno}" method="post" id="formCrearTurno">
 
         <div class="mb-3">
-            <label class="form-label">Cliente ID:</label>
-            <input type="number" th:field="*{clienteId}" class="form-control"/>
-            <a th:href="@{/admin/clientes/nuevo(from='turnos')}" class="btn btn-link">Crear cliente</a>
+            <label class="form-label">Cliente:</label>
+            <input type="text" list="listaClientes" id="clienteInput" class="form-control" placeholder="Escribí ID o Nombre..." autocomplete="off"/>
+            <input type="hidden" th:field="*{clienteId}" id="clienteIdReal"/>
+
+            <datalist id="listaClientes">
+                <option th:each="c : ${clientes}"
+                        th:value="${c.id}"
+                        th:text="${c.nombre} + ' ' + ${c.apellido}"></option>
+            </datalist>
+            <a th:href="@{/admin/clientes/nuevo(from='turnos')}" class="btn btn-link p-0">¿Cliente nuevo?</a>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Profesional ID:</label>
-            <input type="number" th:field="*{profesionalId}" class="form-control"/>
+            <label class="form-label">Profesional:</label>
+            <input type="text" list="listaProfesionales" id="profesionalInput" class="form-control" placeholder="Escribí ID o Nombre..." autocomplete="off"/>
+            <input type="hidden" th:field="*{profesionalId}" id="profesionalIdReal"/>
+
+            <datalist id="listaProfesionales">
+                <option th:each="p : ${profesionales}"
+                        th:value="${p.id}"
+                        th:text="${p.nombre}"></option>
+            </datalist>
         </div>
 
         <div class="mb-3">
@@ -33,13 +42,20 @@
             <input type="time" th:field="*{hora}" class="form-control"/>
         </div>
 
-        <button type="submit" class="btn btn-success"
-                onclick="return confirm('¿Seguro que quieres Crear el Cliente?')">
+        <button type="button" class="btn btn-success"
+                onclick="confirmarGuardado('formCrearTurno', '¿Confirmas la creación de este turno?')">
             Crear turno
         </button>
-
         <a href="/admin/dashboard" class="btn btn-secondary ms-2">Volver</a>
     </form>
 
+    <script>
+        document.getElementById('clienteInput').addEventListener('input', function(e) {
+            document.getElementById('clienteIdReal').value = e.target.value;
+        });
+        document.getElementById('profesionalInput').addEventListener('input', function(e) {
+            document.getElementById('profesionalIdReal').value = e.target.value;
+        });
+    </script>
 </th:block>
 </html>

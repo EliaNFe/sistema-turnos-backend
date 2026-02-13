@@ -3,6 +3,7 @@ package com.elian.Sitema_backend_turnos.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 @Entity
@@ -38,8 +39,11 @@ public class Cliente {
     @Column(nullable = false)
     private String telefono;
 
-    @Email
-    @Column(nullable = false)
+    // ... dentro de la clase Cliente
+    @Email(message = "El formato del correo no es válido")
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)\\.(com|ar|net|org)$",
+            message = "El email debe terminar en una extensión válida (.com, .ar, etc.)")
+    @NotBlank
     private String email;
 
 }

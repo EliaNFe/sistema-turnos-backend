@@ -27,6 +27,13 @@ public class ClienteService {
         if (clienteRepository.existsByDocumento(dto.documento())) {
             throw new IllegalArgumentException("Ya existe un cliente con ese documento");
         }
+        if (clienteRepository.existsByDocumento(dto.email())) {
+            throw new IllegalArgumentException("Ya existe un cliente con ese email");
+        }
+
+        if (clienteRepository.existsByEmail(dto.email())) {
+            throw new IllegalArgumentException("Ya existe otro cliente con el email: " + dto.email());
+        }
         Cliente cliente = new Cliente();
         cliente.setNombre(dto.nombre());
         cliente.setApellido(dto.apellido());
@@ -42,16 +49,36 @@ public class ClienteService {
                 .map(ClienteMapper::toDTO);
     }
 
+    public List<ClienteDTO> listarClientesSinPaginacion() {
+        return clienteRepository.findAll()
+                .stream()
+                .map(ClienteMapper::toDTO)
+                .toList();
+    }
 
+
+    @Transactional
     public Cliente buscarPorId(Long id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new ClientenotFoundException(id));
     }
 
     public Cliente actualizar(Long id, Cliente cliente) {
+        //  Buscamos el cliente actual
         Cliente existente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClientenotFoundException(id));
 
+        // Validar Documento único (exceptuando al cliente actual)
+        if (clienteRepository.existsByDocumentoAndIdNot(cliente.getDocumento(), id)) {
+            throw new IllegalArgumentException("Ya existe otro cliente con el documento: " + cliente.getDocumento());
+        }
+
+        //Validar Email único (exceptuando al cliente actual)
+        if (clienteRepository.existsByEmailAndIdNot(cliente.getEmail(), id)) {
+            throw new IllegalArgumentException("Ya existe otro cliente con el email: " + cliente.getEmail());
+        }
+
+        // 4. Mapeo de datos
         existente.setNombre(cliente.getNombre());
         existente.setApellido(cliente.getApellido());
         existente.setDocumento(cliente.getDocumento());

@@ -1,97 +1,83 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="layout :: html">
-
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: html">
 <th:block th:fragment="contenido">
 
-    <h1 class="mb-4">Turnos</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestión de Turnos</h1>
+        <a href="/admin/turnos/nuevo" class="btn btn-success">➕ Nuevo Turno</a>
+    </div>
 
-    <!-- Filtros -->
     <form method="get" th:action="@{/admin/turnos}" class="row g-3 mb-4 filter-container">
         <div class="col-md-3">
-            <label class="form-label">Estado:</label>
+            <label class="form-label">Estado</label>
             <select name="estado" class="form-select">
-                <option value="">Todos</option>
+                <option value="">Todos los estados</option>
                 <option value="PENDIENTE">Pendiente</option>
-                <option value="CANCELADO">Cancelado</option>
                 <option value="CONFIRMADO">Confirmado</option>
                 <option value="COMPLETADO">Completado</option>
+                <option value="CANCELADO">Cancelado</option>
             </select>
         </div>
-        <div class="col-md-3">
-            <label class="form-label">Profesional:</label>
+        <div class="col-md-4">
+            <label class="form-label">Profesional</label>
             <select name="profesionalId" class="form-select">
-                <option value="">Todos</option>
-                <option th:each="p : ${profesionales}"
-                        th:value="${p.id}"
-                        th:text="${p.nombre}">
-                </option>
+                <option value="">Todos los profesionales</option>
+                <option th:each="p : ${profesionales}" th:value="${p.id}" th:text="${p.nombre}"></option>
             </select>
         </div>
         <div class="col-md-3">
-            <label class="form-label">Fecha:</label>
+            <label class="form-label">Fecha</label>
             <input type="date" name="fecha" class="form-control">
         </div>
-        <div class="col-md-3 d-flex align-items-end">
+        <div class="col-md-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Filtrar</button>
         </div>
     </form>
 
-    <!-- Mensajes -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <!-- Lista de turnos -->
     <div class="table-container">
         <table class="table align-middle">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Hora</th>
+                <th>Fecha / Hora</th>
                 <th>Estado</th>
                 <th>Cliente</th>
                 <th>Profesional</th>
-                <th>Acciones</th>
+                <th class="text-end">Acciones</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="t : ${turnos}">
-                <td th:text="${t.id}"></td>
-                <td th:text="${t.fecha}"></td>
-                <td th:text="${t.hora}"></td>
                 <td>
-                    <span th:classappend="
-                        ${t.estado.name() == 'PENDIENTE'} ? 'badge badge-pendiente' :
-                        (${t.estado.name() == 'CONFIRMADO'} ? 'badge badge-confirmado' :
-                        (${t.estado.name() == 'COMPLETADO'} ? 'badge badge-completado' :
-                        (${t.estado.name() == 'CANCELADO'} ? 'badge badge-cancelado' : 'badge bg-dark')))">
-                        <span th:text="${t.estado}"></span>
-                    </span>
+                    <div class="fw-bold" th:text="${t.fecha}"></div>
+                    <small class="text-muted" th:text="${t.hora}"></small>
+                </td>
+                <td>
+                        <span th:class="'badge badge-' + ${t.estado.toString().toLowerCase()}"
+                              th:text="${t.estado}"></span>
                 </td>
                 <td th:text="${t.clienteNombre}"></td>
                 <td th:text="${t.profesionalNombre}"></td>
-                <td>
-                    <form th:action="@{/admin/turnos/cancelar/{id}(id=${t.id})}" method="post" style="display:inline">
+                <td class="text-end">
+                    <div class="btn-group">
+                        <a th:href="@{/admin/turnos/editar/{id}(id=${t.id})}"
+                           class="btn btn-editar btn-sm">Editar</a>
+
                         <button type="button" class="btn btn-cancelar btn-sm"
+                                th:if="${t.estado.toString() == 'PENDIENTE'}"
                                 th:onclick="'confirmarCancelacion(' + ${t.id} + ')'">
                             Cancelar
                         </button>
-                    </form>
-                    <a th:href="@{/admin/turnos/editar/{id}(id=${t.id})}" class="btn btn-editar btn-sm">Editar</a>
+                    </div>
                 </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(turnos)}">
+                <td colspan="5" class="text-center py-4 text-muted">No se encontraron turnos con esos filtros.</td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <a href="/admin/dashboard" class="btn btn-secondary mt-3">Volver</a>
+    <a href="/admin/dashboard" class="btn btn-secondary mt-3">Volver al Panel</a>
 
 </th:block>
 </html>

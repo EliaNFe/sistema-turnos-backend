@@ -36,7 +36,19 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("turnos", turnoService.listarTodos());
+        List<TurnoDTO> todos = turnoService.listarTodos();
+        LocalDate hoy = LocalDate.now();
+
+        // 1. Contar turnos de hoy
+        long turnosHoy = todos.stream().filter(t -> t.fecha().equals(hoy)).count();
+
+        // 2. Contar pendientes globales
+        long pendientes = todos.stream().filter(t -> t.estado().toString().equals("PENDIENTE")).count();
+
+        model.addAttribute("cantidadHoy", turnosHoy);
+        model.addAttribute("cantidadPendientes", pendientes);
+        model.addAttribute("turnos", todos); // La tabla de abajo usa esta lista
+
         return "admin-dashboard";
     }
 
@@ -93,8 +105,10 @@ public class AdminController {
 
     // --- TURNOS ---
     @GetMapping("/turnos/nuevo")
-    public String mostrarFormularioTurno(Model model) {
+    public String nuevoTurno(Model model) {
         model.addAttribute("turno", new CrearTurnoDTO(null, null, null, null));
+        model.addAttribute("clientes", clienteService.listarClientesSinPaginacion());
+        model.addAttribute("profesionales", profesionalService.listarProfesionales());
         return "turno-form";
     }
 
