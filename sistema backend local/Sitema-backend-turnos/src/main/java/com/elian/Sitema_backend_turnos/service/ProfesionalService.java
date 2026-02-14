@@ -17,14 +17,21 @@ public class ProfesionalService {
 
     private final ProfesionalRepository profesionalRepository;
     private final ProfesionalMapper ProfesionalMapper;
+    private final UsuarioService usuarioService;
 
-    public ProfesionalService(ProfesionalRepository profesionalRepository, ProfesionalMapper profesionalMapper) {
+    public ProfesionalService(ProfesionalRepository profesionalRepository, ProfesionalMapper profesionalMapper, UsuarioService usuarioService) {
         this.profesionalRepository = profesionalRepository;
         ProfesionalMapper = profesionalMapper;
+        this.usuarioService = usuarioService;
     }
 
     public ProfesionalDTO crearProfesional(CrearProfesionalDTO dto) {
-
+        if (profesionalRepository.existsByNombreAndEspecialidad(dto.nombre(), dto.especialidad())) {
+            throw new RuntimeException("Ya existe un profesional con ese nombre y especialidad");
+        }
+        if (profesionalRepository.existsByNombreIgnoreCaseAndEspecialidadIgnoreCase(dto.nombre(), dto.especialidad())) {
+            throw new RuntimeException("Ya existe un profesional con el nombre '" + dto.nombre() + "' y la especialidad '" + dto.especialidad() + "'.");
+        }
         Profesional profesional = new Profesional();
         profesional.setNombre(dto.nombre());
         profesional.setEspecialidad(dto.especialidad());
@@ -51,7 +58,8 @@ public class ProfesionalService {
                 p.getId(),
                 p.getNombre(),
                 p.getEspecialidad(),
-                p.isActivo()
+                p.isActivo(),
+                usuarioService.tieneUsuarioAsociado(p.getId())
         );
     }
 

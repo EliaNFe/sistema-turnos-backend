@@ -7,9 +7,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,6 +42,61 @@ public class ProController {
         model.addAttribute("fechaSeleccionada", fechaBusqueda);
         model.addAttribute("username", emailProf);
 
-        return "profesional/dashboard";
+        return "pro-dashboard";
     }
+
+    @GetMapping("/agenda-general")
+    public String agendaGeneral(@RequestParam(required = false) String fecha,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                Model model) {
+        String username = userDetails.getUsername();
+        List<TurnoDTO> turnos;
+
+        if (fecha != null && !fecha.isEmpty()) {
+            // Parseamos el String de la vista a LocalDate
+            LocalDate fechaParsed = LocalDate.parse(fecha);
+            turnos = turnoService.listarPorProfesionalYFecha(username, fechaParsed);
+        } else {
+            turnos = turnoService.listarTodoDelProfesional(username);
+        }
+
+        model.addAttribute("turnos", turnos);
+        model.addAttribute("fechaSeleccionada", fecha);
+        return "profesional-agenda-general";
+    }
+
+
+    @GetMapping("/clientes/historial")
+    public String historialCliente(@RequestParam String nombre,
+                                   @AuthenticationPrincipal UserDetails userDetails,
+                                   Model model) {
+        String username = userDetails.getUsername();
+        // Este método lo creamos en el service
+        List<TurnoDTO> historial = turnoService.listarHistorialCliente(username, nombre);
+
+        model.addAttribute("clienteNombre", nombre);
+        model.addAttribute("historial", historial);
+        return "profesional-historial-cliente";
+    }
+
+    @PostMapping("/turnos/completar/{id}")
+    public String completar(@PathVariable Long id, RedirectAttributes redirect) {
+        try {
+            turnoService.completarTurno(id);
+            redirect.addFlashAttribute("success", "Turno marcado como completado.");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", "No se pudo actualizar el turno.");
+        }
+        return "redirect:/profesional/dashboard";
+    }
+
+
+    @PostMapping("/turnos/cancelar/{id}")
+    public String cancelar(@PathVariable Long id, RedirectAttributes redirect) {
+        turnoService.cancelarTurno(id);
+        redirect.addFlashAttribute("error", "Turno cancelado.");
+        return "redirect:/profesional/dashboard";
+    }
+
+
 }

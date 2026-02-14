@@ -1,21 +1,29 @@
 package com.elian.Sitema_backend_turnos.mapper;
 
 import com.elian.Sitema_backend_turnos.dto.ProfesionalDTO;
+import com.elian.Sitema_backend_turnos.dto.UsuarioLogueadoDTO;
 import com.elian.Sitema_backend_turnos.model.Profesional;
+import com.elian.Sitema_backend_turnos.service.UsuarioService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProfesionalMapper {
+    private final UsuarioService usuarioService;
+
+    public ProfesionalMapper(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
     public ProfesionalDTO toDTO(Profesional profesional) {
         if (profesional == null) return null;
 
-        // Aquí usas el constructor de tu Record o DTO
+
         return new ProfesionalDTO(
                 profesional.getId(),
                 profesional.getNombre(),
                 profesional.getEspecialidad(),
-                profesional.isActivo()
+                profesional.isActivo(),
+                usuarioService.tieneUsuarioAsociado(profesional.getId())
         );
     }
 

@@ -1,63 +1,216 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" th:replace="~{layout :: html}">
 <th:block th:fragment="contenido">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="display-6 fw-bold">Mi Agenda</h1>
-            <p class="text-muted">Hola, <span class="fw-bold" th:text="${username}"></span>. Estos son tus turnos.</p>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+
+        /* Contenedores */
+        .header-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .card-custom { border-radius: 16px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .card-turno-total { background-color: #e3f2fd; color: #0d47a1; border-left: 6px solid #2196f3; }
+        .card-filtro { background-color: #f1f8e9; border-left: 6px solid #8bc34a; padding: 1.5rem !important; }
+
+        .table-admin-style {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+
+        /* Botón Agenda Histórica */
+        .btn-agenda-gral {
+            background-color: #e9ecef;
+            color: #495057;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-agenda-gral:hover {
+            background-color: #adb5bd;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* BOTÓN VER FICHA (Corregido) */
+        .btn-ficha-text {
+            background-color: #f1f5f9;
+            color: #6c5ce7;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .btn-ficha-text:hover {
+            background-color: #6c5ce7;
+            color: white !important;
+            transform: translateY(-1px);
+        }
+
+        /* BOTONES ACCIÓN (Modernos con efectos) */
+        .btn-done-modern {
+            background-color: #10b981;
+            color: white;
+            border-radius: 12px;
+            border: none;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        .btn-done-modern:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-cancel-modern {
+            color: #ef4444;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            background: none;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .btn-cancel-modern:hover {
+            color: #b91c1c;
+            border-bottom: 2px solid #fecaca;
+        }
+
+
+
+        .text-hora { font-size: 1.1rem; color: #1e293b; font-weight: 700; letter-spacing: -0.5px; }
+
+        /* Badges */
+        .badge-pendiente { background-color: #fff9c4; color: #856404; border-radius: 8px; padding: 6px 12px; }
+        .badge-completado { background-color: #c8e6c9; color: #1b5e20; border-radius: 8px; padding: 6px 12px; }
+        .badge-cancelado { background-color: #ffcdd2; color: #b71c1c; border-radius: 8px; padding: 6px 12px; }
+    </style>
+
+    <div class="container py-4">
+
+        <div class="header-card d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-0" style="color: #343a40;">
+                    ¡Hola de nuevo, <span sec:authentication="name" class="text-primary text-capitalize">profesional</span>!
+                </h2>
+                <p class="text-muted mb-0">Revisá tu agenda y gestioná tus clientes de hoy.</p>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-dark shadow-sm px-4" style="border-radius: 10px;">
+                    Cerrar Sesión
+                </button>
+            </form>
         </div>
-        <form th:action="@{/profesional/dashboard}" method="get" class="d-flex align-items-center gap-2">
-            <input type="date" name="fecha" class="form-control" th:value="${fechaSeleccionada}" onchange="this.form.submit()">
-        </form>
-    </div>
 
-    <div class="row g-3">
-        <div th:each="t : ${turnos}" class="col-12">
-            <div class="card border-0 shadow-sm" style="border-radius: 15px; background: rgba(255,255,255,0.7);">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fs-4 fw-bold text-primary" th:text="${t.hora}">00:00</div>
-                        <div class="fw-bold text-dark" th:text="${t.clienteNombre}">Nombre Cliente</div>
-                        <small class="text-muted" th:text="${t.servicioNombre}">Servicio</small>
+        <div class="row mb-4 g-4">
+            <div class="col-md-3">
+                <div class="card card-custom card-turno-total p-3 h-100">
+                    <div class="card-body">
+                        <h6 class="mb-1 fw-bold opacity-75 small text-uppercase">Turnos para hoy</h6>
+                        <h2 class="mb-0 fw-bold" th:text="${#lists.size(turnos)}">0</h2>
                     </div>
-                    <div class="text-end">
-                        <span th:class="'badge mb-2 d-block badge-' + ${t.estado.toString().toLowerCase()}"
-                              th:text="${t.estado}">Pendiente</span>
+                </div>
+            </div>
 
-                        <div class="btn-group">
-                            <button th:if="${t.estado.toString() == 'CONFIRMADO'}"
-                                    class="btn btn-sm btn-success"
-                                    th:onclick="'cambiarEstado(' + ${t.id} + ', \'COMPLETADO\')'">
-                                ✓ Atendido
-                            </button>
+            <div class="col-md-9">
+                <div class="card card-custom card-filtro h-100">
+                    <form th:action="@{/profesional/dashboard}" method="get" class="row g-3 align-items-center">
+                        <div class="col-sm-4 text-sm-end">
+                            <span class="fw-bold text-muted small">BUSCAR OTRA FECHA:</span>
                         </div>
-                    </div>
+                        <div class="col-sm-3">
+                            <input type="date" name="fecha" class="form-control border-0 shadow-sm"
+                                   th:value="${fechaSeleccionada}"
+                                   min="2020-01-01" max="2030-12-31"
+                                   style="border-radius: 10px;">
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="submit" class="btn btn-dark w-100 shadow-sm" style="border-radius: 10px;">VER</button>
+                        </div>
+                        <div class="col-sm-3">
+                            <a href="/profesional/agenda-general" class="btn btn-agenda-gral w-100 shadow-sm py-2 text-decoration-none text-center">
+                                Agenda Histórica
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <div th:if="${#lists.isEmpty(turnos)}" class="text-center py-5">
-            <div class="fs-1">☕</div>
-            <h4 class="text-muted">No tenés turnos para esta fecha.</h4>
+        <div class="table-admin-style">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3">Horario</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th class="text-center">Ver Ficha</th>
+                    <th class="text-end pe-4">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${turnos}" style="border-top: 1px solid #f1f5f9;">
+                    <td class="ps-4">
+                        <span class="text-hora" th:text="${t.hora}">10:00</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-3">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </div>
+                            <span class="fw-bold text-dark" th:text="${t.clienteNombre}">Nombre</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="${t.estado.toString() == 'PENDIENTE' ? 'badge-pendiente' : t.estado.toString() == 'COMPLETADO' ? 'badge-completado' : 'badge-cancelado'}" th:text="${t.estado}">PENDIENTE</span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/profesional/clientes/historial(nombre=${t.clienteNombre})}" class="btn-ficha-text shadow-sm">
+                            <i class="bi bi-list-ul"></i>
+                            Ver Ficha
+                        </a>
+                    </td>
+                    <td class="text-end pe-4">
+                        <div th:if="${t.estado.toString() == 'PENDIENTE'}" class="d-flex justify-content-end align-items-center gap-4">
+                            <form th:action="@{/profesional/turnos/completar/{id}(id=${t.id})}" method="post">
+                                <button type="submit" class="btn-done-modern">Listo</button>
+                            </form>
+                            <form th:action="@{/profesional/turnos/cancelar/{id}(id=${t.id})}" method="post">
+                                <button type="submit" class="btn-cancel-modern">Cancelar</button>
+                            </form>
+                        </div>
+                        <div th:unless="${t.estado.toString() == 'PENDIENTE'}" class="text-muted small fw-bold">
+                            <span th:if="${t.estado.toString() == 'COMPLETADO'}" class="text-success"><i class="bi bi-check-all"></i> Atendido</span>
+                            <span th:if="${t.estado.toString() == 'CANCELADO'}" class="text-danger"><i class="bi bi-x-circle"></i> Cancelado</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(turnos)}">
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                        No hay turnos registrados para esta fecha.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <div class="mt-5">
-        <a href="/logout" class="btn btn-outline-danger">Cerrar Sesión</a>
-    </div>
-
-    <script>
-        function cambiarEstado(id, nuevoEstado) {
-            // Aquí podés usar un fetch o un form dinámico para actualizar el estado
-            // sin ir a la pantalla de edición del admin.
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/admin/turnos/cambiar-estado/' + id + '?estado=' + nuevoEstado;
-            document.body.appendChild(form);
-            form.submit();
-        }
-    </script>
 
 </th:block>
 </html>

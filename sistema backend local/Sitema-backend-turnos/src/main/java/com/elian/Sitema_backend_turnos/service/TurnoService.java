@@ -55,6 +55,7 @@ public class TurnoService {
         LocalDate hoy = LocalDate.now();
         LocalTime ahora = LocalTime.now();
 
+
         if (dto.fecha() == null || dto.hora() == null) {
             throw new IllegalArgumentException("La fecha y la hora son obligatorias");
         }
@@ -82,7 +83,7 @@ public class TurnoService {
             throw new IllegalStateException("El profesional seleccionado no está activo.");
         }
 
-// VALIDACIÓN EXTRA
+
         if (!cliente.isActivo()) {
             throw new IllegalStateException("El cliente seleccionado no está activo.");
         }
@@ -333,6 +334,58 @@ public class TurnoService {
                 .stream()
                 .map(turnoMapper::toDTO2)
                 .collect(Collectors.toList());
+    }
+
+    public List<TurnoDTO> listarHistorialCliente(String username, String clienteNombre) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Long profesionalId = usuario.getProfesional().getId();
+
+        // Buscamos todos los turnos de ese cliente con ese profesional, ordenados por fecha
+        return turnoRepository.findByProfesionalIdAndClienteNombreOrderByFechaDesc(profesionalId, clienteNombre)
+                .stream()
+                .map(turnoMapper::toDTO2)
+                .collect(Collectors.toList());
+    }
+
+    public List<TurnoDTO> listarPorProfesionalYFecha(String username, LocalDate fecha) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getProfesional() == null) {
+            throw new RuntimeException("El usuario no tiene un perfil profesional vinculado");
+        }
+
+        return turnoRepository.findByProfesionalIdAndFechaOrderByHoraAsc(usuario.getProfesional().getId(), fecha)
+                .stream()
+                .map(turnoMapper::toDTO2) // Usamos toDTO2 como en tus otros métodos
+                .collect(Collectors.toList());
+    }
+
+
+    public List<TurnoDTO> listarTodoDelProfesional(String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getProfesional() == null) {
+            throw new RuntimeException("El usuario no tiene un perfil profesional vinculado");
+        }
+
+        // Buscamos todos los turnos del profesional ordenados por fecha descendente (lo más nuevo primero)
+        return turnoRepository.findByProfesionalIdOrderByFechaDescHoraAsc(usuario.getProfesional().getId())
+                .stream()
+                .map(turnoMapper::toDTO2)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void completarTurno(Long id) {
+        Turno turno = turnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+
+        turno.setEstado(EstadoTurno.COMPLETADO);
+        // Al estar en un método @Transactional, se guarda solo al terminar
     }
 
 }

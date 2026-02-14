@@ -51,8 +51,14 @@ public class ProfesionalController {
 
     @PostMapping("/nuevo")
     public String guardarProfesional(@ModelAttribute CrearProfesionalDTO dto, RedirectAttributes redirect) {
-        profesionalService.crearProfesional(dto);
-        redirect.addFlashAttribute("success", "Profesional registrado con éxito. Ya puedes asignarle un usuario.");
+        try {
+            profesionalService.crearProfesional(dto);
+            redirect.addFlashAttribute("success", "Profesional registrado con éxito");
+        } catch (RuntimeException e) {
+            // Si el service lanza la excepción de "Ya existe", la mandamos como error
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/admin/profesionales/nuevo";
+        }
         return "redirect:/admin/profesionales";
     }
 
@@ -70,4 +76,7 @@ public class ProfesionalController {
         redirect.addFlashAttribute("success", "El profesional ha sido reactivado correctamente.");
         return "redirect:/admin/profesionales";
     }
+
+
+
 }

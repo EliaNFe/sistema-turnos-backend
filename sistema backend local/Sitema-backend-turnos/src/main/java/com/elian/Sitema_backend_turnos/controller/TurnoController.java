@@ -71,9 +71,15 @@ public class TurnoController {
 
     @PostMapping("/nuevo")
     public String crearTurno(@ModelAttribute CrearTurnoDTO dto, RedirectAttributes redirect) {
-        turnoService.crearTurno(dto);
-        redirect.addFlashAttribute("success", "Turno creado correctamente");
-        return "redirect:/admin/dashboard"; // O a /admin/turnos según prefieras
+        try {
+            turnoService.crearTurno(dto);
+            redirect.addFlashAttribute("success", "Turno creado correctamente");
+            return "redirect:/admin/dashboard"; // O a /admin/turnos según prefieras
+        } catch (RuntimeException e) {
+
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/admin/turnos/nuevo";
+        }
     }
 
     // Edición de turnos

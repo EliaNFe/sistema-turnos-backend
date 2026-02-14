@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" th:replace="~{layout :: html}">
+<th:block th:fragment="contenido">
+
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+
+        /* Contenedor Superior */
+        .header-card-historial {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            border-left: 6px solid #343a40;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .table-admin-style {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+
+        /* Botón Ver Ficha - Más descriptivo */
+        .btn-ficha-text {
+            background-color: #f1f5f9;
+            color: #6c5ce7;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .btn-ficha-text:hover {
+            background-color: #6c5ce7;
+            color: white !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-volver {
+            background-color: #343a40;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-volver:hover {
+            background-color: #212529;
+            transform: translateX(-3px);
+            color: white;
+        }
+
+        .text-fecha { font-size: 1rem; color: #1e293b; font-weight: 700; }
+        .text-hora { font-size: 0.95rem; color: #64748b; font-weight: 500; }
+        .nombre-cliente { color: #334155; font-weight: 600; font-size: 1.05rem; }
+
+        /* Badges */
+        .badge-pendiente { background-color: #fff9c4; color: #856404; border-radius: 8px; padding: 6px 12px; }
+        .badge-completado { background-color: #c8e6c9; color: #1b5e20; border-radius: 8px; padding: 6px 12px; }
+        .badge-cancelado { background-color: #ffcdd2; color: #b71c1c; border-radius: 8px; padding: 6px 12px; }
+    </style>
+
+    <div class="container py-4">
+
+        <div class="header-card-historial d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-0" style="color: #343a40;">Agenda Histórica General</h2>
+                <p class="text-muted mb-0">Listado completo de todos tus turnos registrados.</p>
+            </div>
+            <a href="/profesional/dashboard" class="btn-volver shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+            </a>
+        </div>
+
+        <div class="card card-custom p-4 mb-4" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;">
+            <form th:action="@{/profesional/agenda-general}" method="get" class="row g-3 align-items-center">
+                <div class="col-sm-5 text-sm-end">
+                    <span class="fw-bold text-muted small text-uppercase">Buscar por fecha específica:</span>
+                </div>
+                <div class="col-sm-4">
+                    <input type="date" name="fecha" class="form-control border shadow-sm" th:value="${fechaSeleccionada}" style="border-radius: 10px;">
+                </div>
+                <div class="col-sm-3">
+                    <button type="submit" class="btn btn-dark w-100 shadow-sm" style="border-radius: 10px; font-weight: 600;">FILTRAR</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-admin-style">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3">Fecha</th>
+                    <th>Horario</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${turnos}" style="border-top: 1px solid #f1f5f9;">
+                    <td class="ps-4">
+                        <span class="text-fecha" th:text="${t.fecha}">10/02/2024</span>
+                    </td>
+                    <td>
+                        <span class="text-hora" th:text="${t.hora}">10:00</span>
+                    </td>
+                    <td>
+                        <span class="nombre-cliente text-capitalize" th:text="${t.clienteNombre}">Nombre del Cliente</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${t.estado.toString() == 'PENDIENTE' ? 'badge-pendiente' : t.estado.toString() == 'COMPLETADO' ? 'badge-completado' : 'badge-cancelado'}"
+                              th:text="${t.estado}">PENDIENTE</span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/profesional/clientes/historial(nombre=${t.clienteNombre})}" class="btn-ficha-text">
+                            <i class="bi bi-list-ul"></i>
+                            Ver Ficha
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(turnos)}">
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
+                        No se encontraron registros.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</th:block>
+</html>

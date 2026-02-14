@@ -24,7 +24,8 @@
                 <th>Nombre y Apellido</th>
                 <th>Especialidad</th>
                 <th>Estado</th>
-                <th>Acceso al Sistema</th> <th class="text-end">Acciones</th>
+                <th>Acceso al Sistema</th>
+                <th class="text-end">Acciones</th>
             </tr>
             </thead>
             <tbody>
@@ -80,7 +81,29 @@
     </div>
 
     <script th:inline="javascript">
-        /* El script de filtrado y confirmación sigue igual que el tuyo */
+        /* 1. ALERTAS DE ÉXITO O ERROR AL CARGAR LA PÁGINA */
+        const successMsg = [[${success}]];
+        const errorMsg = [[${error}]];
+
+        if (successMsg) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Excelente!',
+                text: successMsg,
+                timer: 2500,
+                showConfirmButton: false
+            });
+        }
+
+        if (errorMsg) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Atención',
+                text: errorMsg
+            });
+        }
+
+        /* 2. CONFIRMACIÓN PARA CAMBIO DE ESTADO */
         function confirmarEstadoProf(id, activar) {
             const titulo = activar ? '¿Reactivar profesional?' : '¿Desactivar profesional?';
             const texto = activar ? 'Volverá a estar disponible para turnos.' : 'Ya no aparecerá disponible para nuevos turnos.';
@@ -91,9 +114,10 @@
                 text: texto,
                 icon: activar ? 'question' : 'warning',
                 showCancelButton: true,
-                confirmButtonColor: activar ? '#198754' : '#ffb3b3',
+                confirmButtonColor: activar ? '#198754' : '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: activar ? 'Sí, reactivar' : 'Sí, desactivar'
+                confirmButtonText: activar ? 'Sí, reactivar' : 'Sí, desactivar',
+                cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
@@ -105,6 +129,7 @@
             })
         }
 
+        /* 3. FILTRADO DINÁMICO */
         function filtrarTabla() {
             let input = document.getElementById("buscadorTabla");
             let filter = input.value.toLowerCase();

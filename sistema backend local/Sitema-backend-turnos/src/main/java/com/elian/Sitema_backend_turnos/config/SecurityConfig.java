@@ -19,7 +19,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -27,26 +26,37 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/login"
+                                "/login",
+                                "/css/**", "/js/**", "/images/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/profesional/**").hasRole("PROFESIONAL")
                         .anyRequest().authenticated()
                 )
-                .formLogin(login -> login
+                .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/redirect", true)
+                        .successHandler((request, response, authentication) -> {
+                            var roles = authentication.getAuthorities();
+
+                            if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
+                                response.sendRedirect("/admin/dashboard");
+                            } else if (roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_PROFESIONAL"))) {
+                                response.sendRedirect("/profesional/dashboard");
+                            } else {
+                                response.sendRedirect("/");
+                            }
+                        })
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
 
-        http.headers(AbstractHttpConfigurer::disable);
+
+        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
         return http.build();
-    }
-
-
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {      //evita guardar contraseñas en texto plano
-        return new BCryptPasswordEncoder();
     }
 
 }
