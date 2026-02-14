@@ -36,7 +36,7 @@
             transition: all 0.3s;
         }
 
-        /* Badges de Estado Estilizados */
+        /* Badges de Estado */
         .badge-pendiente { background-color: #fff9c4; color: #856404; border-radius: 8px; padding: 6px 12px; }
         .badge-confirmado { background-color: #e0f2fe; color: #0369a1; border-radius: 8px; padding: 6px 12px; }
         .badge-completado { background-color: #c8e6c9; color: #1b5e20; border-radius: 8px; padding: 6px 12px; }
@@ -50,6 +50,39 @@
             transition: all 0.2s;
         }
         .btn-editar:hover { background-color: #6366f1; color: white; }
+
+        /* ESTILO DE LOS BOTONES DE PAGINACIÓN */
+        .pagination-capsule {
+            background: #1e293b; /* Fondo oscuro tipo cápsula */
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: white;
+        }
+
+        .page-link-custom {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white !important; /* Icono siempre blanco */
+            transition: all 0.3s ease;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .page-link-custom:hover {
+            background-color: #6366f1;
+            transform: scale(1.1);
+        }
+
+        .page-info-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
     </style>
 
     <div class="container py-4">
@@ -69,22 +102,26 @@
                 <label class="form-label fw-bold small text-muted">ESTADO</label>
                 <select name="estado" class="form-select custom-input">
                     <option value="">Todos los estados</option>
-                    <option value="PENDIENTE">Pendiente</option>
-                    <option value="CONFIRMADO">Confirmado</option>
-                    <option value="COMPLETADO">Completado</option>
-                    <option value="CANCELADO">Cancelado</option>
+                    <option value="PENDIENTE" th:selected="${param.estado != null and #strings.equals(param.estado, 'PENDIENTE')}">Pendiente</option>
+                    <option value="CONFIRMADO" th:selected="${param.estado != null and #strings.equals(param.estado, 'CONFIRMADO')}">Confirmado</option>
+                    <option value="COMPLETADO" th:selected="${param.estado != null and #strings.equals(param.estado, 'COMPLETADO')}">Completado</option>
+                    <option value="CANCELADO" th:selected="${param.estado != null and #strings.equals(param.estado, 'CANCELADO')}">Cancelado</option>
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label fw-bold small text-muted">PROFESIONAL</label>
                 <select name="profesionalId" class="form-select custom-input">
                     <option value="">Todos los profesionales</option>
-                    <option th:each="p : ${profesionales}" th:value="${p.id}" th:text="${p.nombre}"></option>
+                    <option th:each="p : ${profesionales}"
+                            th:value="${p.id}"
+                            th:text="${p.nombre}"
+                            th:selected="${param.profesionalId != null and #strings.equals(param.profesionalId, p.id.toString())}"></option>
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label fw-bold small text-muted">FECHA ESPECÍFICA</label>
                 <input type="date" name="fecha" class="form-control custom-input"
+                       th:value="${param.fecha}"
                        min="2024-01-01" max="2035-12-31">
             </div>
             <div class="col-md-3">
@@ -108,12 +145,12 @@
                 <tbody>
                 <tr th:each="t : ${turnos}" style="border-top: 1px solid #f1f5f9;">
                     <td class="ps-4">
-                        <div class="fw-bold text-dark" th:text="${t.fecha}">12/10/2026</div>
+                        <div class="fw-bold text-dark" th:text="${t.fecha}"></div>
                         <div class="small text-muted"><i class="bi bi-clock me-1"></i><span th:text="${t.hora}"></span></div>
                     </td>
                     <td>
                         <span th:class="'badge badge-' + ${t.estado.toString().toLowerCase()}"
-                              th:text="${t.estado}">PENDIENTE</span>
+                              th:text="${t.estado}"></span>
                     </td>
                     <td class="fw-semibold text-dark" th:text="${t.clienteNombre}"></td>
                     <td th:text="${t.profesionalNombre}"></td>
@@ -123,9 +160,8 @@
                                class="btn btn-editar btn-sm border-0">
                                 <i class="bi bi-pencil"></i> Editar
                             </a>
-
                             <button type="button" class="btn btn-outline-danger btn-sm border-0"
-                                    th:if="${t.estado.toString() == 'PENDIENTE'}"
+                                    th:if="${t.estado.toString() == 'PENDIENTE' or t.estado.toString() == 'CONFIRMADO'}"
                                     th:onclick="'confirmarCancelacion(' + ${t.id} + ')'">
                                 <i class="bi bi-x-circle"></i> Cancelar
                             </button>
@@ -142,10 +178,37 @@
             </table>
         </div>
 
-        <div class="mt-4">
+        <div class="mt-4 d-flex justify-content-between align-items-center">
             <a href="/admin/dashboard" class="text-decoration-none text-secondary fw-bold">
                 <i class="bi bi-arrow-left me-2"></i>Volver al Panel
             </a>
+
+            <div th:if="${turnosPage != null and turnosPage.totalPages > 1}" class="pagination-capsule d-flex align-items-center gap-3">
+
+                <th:block th:if="${turnosPage.hasPrevious()}">
+                    <a th:href="@{/admin/turnos(page=${turnosPage.number - 1}, estado=${param.estado}, profesionalId=${param.profesionalId}, fecha=${param.fecha})}"
+                       class="page-link-custom">
+                        <i class="bi bi-chevron-left fs-5 text-white"></i>
+                    </a>
+                </th:block>
+                <span th:unless="${turnosPage.hasPrevious()}" class="text-white-50 opacity-25 px-2">
+                   <i class="bi bi-chevron-left fs-5"></i>
+                </span>
+
+                <span class="page-info-text px-2">
+                    Página <span th:text="${turnosPage.number + 1}"></span> de <span th:text="${turnosPage.totalPages}"></span>
+                </span>
+
+                <th:block th:if="${turnosPage.hasNext()}">
+                    <a th:href="@{/admin/turnos(page=${turnosPage.number + 1}, estado=${param.estado}, profesionalId=${param.profesionalId}, fecha=${param.fecha})}"
+                       class="page-link-custom">
+                        <i class="bi bi-chevron-right fs-5 text-white"></i>
+                    </a>
+                </th:block>
+                <span th:unless="${turnosPage.hasNext()}" class="text-white-50 opacity-25 px-2">
+                   <i class="bi bi-chevron-right fs-5"></i>
+                </span>
+            </div>
         </div>
     </div>
 

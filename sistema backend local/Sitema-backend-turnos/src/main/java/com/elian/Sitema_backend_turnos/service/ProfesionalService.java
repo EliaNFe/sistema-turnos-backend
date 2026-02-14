@@ -7,6 +7,8 @@ import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
 import com.elian.Sitema_backend_turnos.mapper.ProfesionalMapper;
 import com.elian.Sitema_backend_turnos.model.Profesional;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +45,12 @@ public class ProfesionalService {
 
     }
 
+
+    public Page<ProfesionalDTO> listarPaginado(String nombre, int pagina) {
+        PageRequest pageable = PageRequest.of(pagina, 10); // 10 por página
+        return profesionalRepository.buscarProfesionales(nombre, pageable)
+                .map(ProfesionalMapper::toDTO);
+    }
 
     public List<Profesional> listarProfesionales() {
         return profesionalRepository.findAll();

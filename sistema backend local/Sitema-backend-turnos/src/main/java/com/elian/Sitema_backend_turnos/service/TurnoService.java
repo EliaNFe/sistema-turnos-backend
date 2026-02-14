@@ -264,7 +264,7 @@ public class TurnoService {
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
 
-        if (turno.getEstado() != EstadoTurno.PENDIENTE || turno.getEstado() != EstadoTurno.CONFIRMADO) {
+        if (turno.getEstado() != EstadoTurno.PENDIENTE && turno.getEstado() != EstadoTurno.CONFIRMADO) {
             throw new IllegalStateException(
                     "No se puede cancelar un turno que no está pendiente o confirmado"
             );

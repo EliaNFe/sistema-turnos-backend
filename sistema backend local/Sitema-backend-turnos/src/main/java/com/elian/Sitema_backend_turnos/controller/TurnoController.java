@@ -32,34 +32,32 @@ public class TurnoController {
         this.clienteService = clienteService;
     }
 
-    // Listado de turnos con filtros
+    // Listado de turnos con filtros y PAGINACIÓN
     @GetMapping
     public String listarTurnos(@RequestParam(required = false) String estado,
                                @RequestParam(required = false) String profesionalId,
                                @RequestParam(required = false)
                                @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fecha,
+                               @RequestParam(defaultValue = "0") int page, // Nuevo parámetro
                                Model model) {
-        List<TurnoDTO> turnos;
 
-        // Limpieza de parámetros vacíos
+        int size = 10;
+
+
         if (estado != null && estado.isBlank()) estado = null;
         if (profesionalId != null && profesionalId.isBlank()) profesionalId = null;
 
-        if (estado != null) {
-            turnos = turnoService.buscarPorEstado(estado);
-        } else if (profesionalId != null) {
-            turnos = turnoService.buscarPorProfesional(Long.parseLong(profesionalId));
-        } else if (fecha != null) {
-            turnos = turnoService.buscarPorFecha(fecha);
-        } else {
-            turnos = turnoService.listarTodos();
-        }
+        org.springframework.data.domain.Page<TurnoDTO> turnosPage;
 
-        model.addAttribute("turnos", turnos);
+        Long profId = (profesionalId != null) ? Long.parseLong(profesionalId) : null;
+        turnosPage = turnoService.listarFiltradoYPaginado(estado, profId, fecha, page);
+        // PASAMOS LOS DATOS AL MODELO
+        model.addAttribute("turnos", turnosPage.getContent());
+        model.addAttribute("turnosPage", turnosPage);
         model.addAttribute("profesionales", profesionalService.listarProfesionales());
+
         return "admin-turnos";
     }
-
     // Formulario para crear un nuevo turno (Carga clientes y profesionales activos)
     @GetMapping("/nuevo")
     public String nuevoTurno(Model model) {

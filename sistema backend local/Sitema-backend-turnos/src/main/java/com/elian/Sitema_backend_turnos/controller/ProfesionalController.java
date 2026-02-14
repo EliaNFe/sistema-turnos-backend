@@ -4,6 +4,7 @@ import com.elian.Sitema_backend_turnos.dto.CrearProfesionalDTO;
 import com.elian.Sitema_backend_turnos.dto.ProfesionalDTO;
 import com.elian.Sitema_backend_turnos.service.ProfesionalService;
 import com.elian.Sitema_backend_turnos.service.UsuarioService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,19 +26,14 @@ public class ProfesionalController {
     }
 
     @GetMapping
-    public String listarProfesionales(Model model) {
-        List<ProfesionalDTO> lista = profesionalService.listarProfesionales()
-                .stream()
-                .map(p -> new ProfesionalDTO(
-                        p.getId(),
-                        p.getNombre(),
-                        p.getEspecialidad(),
-                        p.isActivo(),
-                        usuarioService.tieneUsuarioAsociado(p.getId())
-                ))
-                .toList();
+    public String listarProfesionales(@RequestParam(required = false) String nombre,
+                                      @RequestParam(defaultValue = "0") int page,
+                                      Model model) {
 
-        model.addAttribute("profesionales", lista);
+        Page<ProfesionalDTO> profesionalesPage = profesionalService.listarPaginado(nombre, page);
+
+        model.addAttribute("profesionales", profesionalesPage.getContent());
+        model.addAttribute("profesionalesPage", profesionalesPage); // Clave para el HTML
         return "admin-profesionales";
     }
 

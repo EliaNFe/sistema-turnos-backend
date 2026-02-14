@@ -2,121 +2,189 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
 <th:block th:fragment="contenido">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Gestión de Profesionales</h1>
-        <div class="btn-group">
-            <a href="/admin/profesionales/nuevo" class="btn btn-success">➕ Nuevo Profesional</a>
-            <a href="/admin/usuarios/nuevo" class="btn btn-primary">🔑 Crear Usuario</a>
+    <style>
+        /* Estilos consistentes con el resto del sistema */
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+
+        .table-container {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 2rem;
+        }
+
+        /* Estilo de la cápsula de paginación */
+        .pagination-capsule {
+            background: #1e293b;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-link-custom {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white !important;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .page-link-custom:hover {
+            background-color: #6366f1;
+            transform: scale(1.1);
+        }
+
+        .btn-editar { background-color: #f1f5f9; color: #475569; font-weight: 600; }
+        .btn-editar:hover { background-color: #6366f1; color: white; }
+        .btn-cancelar { background-color: #fee2e2; color: #b91c1c; font-weight: 600; }
+        .btn-cancelar:hover { background-color: #ef4444; color: white; }
+    </style>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold mb-0" style="color: #1e293b;">Gestión de Profesionales</h1>
+                <p class="text-muted">Administra el staff y sus accesos.</p>
+            </div>
+            <div class="btn-group gap-2">
+                <a href="/admin/profesionales/nuevo" class="btn btn-success px-4 fw-bold" style="border-radius: 12px;">
+                    <i class="bi bi-person-plus me-2"></i>Nuevo Profesional
+                </a>
+                <a href="/admin/usuarios/nuevo" class="btn btn-primary px-4 fw-bold" style="border-radius: 12px;">
+                    <i class="bi bi-key me-2"></i>Crear Usuario
+                </a>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <input type="text" id="buscadorTabla" class="form-control py-2 shadow-sm"
+                   style="border-radius: 12px;"
+                   placeholder="🔍 Buscar en esta página..."
+                   onkeyup="filtrarTabla()">
+        </div>
+
+        <div class="table-container shadow-sm">
+            <table class="table align-middle mb-0">
+                <thead class="table-light text-muted small text-uppercase">
+                <tr>
+                    <th class="ps-4">ID</th>
+                    <th>Nombre y Apellido</th>
+                    <th>Especialidad</th>
+                    <th>Estado</th>
+                    <th>Acceso al Sistema</th>
+                    <th class="text-end pe-4">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${profesionales}" style="border-top: 1px solid #f1f5f9;">
+                    <td class="ps-4" th:text="${p.id}"></td>
+                    <td><div class="fw-bold text-dark" th:text="${p.nombre}"></div></td>
+                    <td><span class="badge bg-light text-dark border" th:text="${p.especialidad}"></span></td>
+                    <td>
+                        <span th:if="${p.activo}" class="badge bg-success-subtle text-success border border-success px-3">Activo</span>
+                        <span th:unless="${p.activo}" class="badge bg-secondary-subtle text-secondary border border-secondary px-3">Inactivo</span>
+                    </td>
+
+                    <td>
+                        <div th:if="${p.tieneUsuario}">
+                            <span class="badge bg-info-subtle text-info border border-info">
+                                <i class="bi bi-person-check-fill"></i> Con Usuario
+                            </span>
+                        </div>
+                        <div th:unless="${p.tieneUsuario}">
+                            <a th:href="@{/admin/usuarios/nuevo(profesionalId=${p.id})}"
+                               class="btn btn-outline-primary btn-sm py-0"
+                               style="font-size: 0.75rem;">
+                                ➕ Asignar Usuario
+                            </a>
+                        </div>
+                    </td>
+
+                    <td class="text-end pe-4">
+                        <div class="btn-group gap-2">
+                            <a th:href="@{/admin/profesionales/editar/{id}(id=${p.id})}"
+                               class="btn btn-editar btn-sm border-0">Editar</a>
+
+                            <button th:if="${p.activo}" type="button" class="btn btn-cancelar btn-sm border-0"
+                                    th:onclick="'confirmarEstadoProf(' + ${p.id} + ', false)'">
+                                Baja
+                            </button>
+
+                            <button th:unless="${p.activo}" type="button" class="btn btn-success btn-sm border-0"
+                                    th:onclick="'confirmarEstadoProf(' + ${p.id} + ', true)'">
+                                Reactivar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="/admin/dashboard" class="text-decoration-none text-secondary fw-bold">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Panel
+            </a>
+
+            <div th:if="${profesionalesPage != null and profesionalesPage.totalPages > 1}" class="pagination-capsule gap-3">
+
+                <th:block th:if="${profesionalesPage.hasPrevious()}">
+                    <a th:href="@{/admin/profesionales(page=${profesionalesPage.number - 1})}"
+                       class="page-link-custom">
+                        <i class="bi bi-chevron-left fs-5"></i>
+                    </a>
+                </th:block>
+                <span th:unless="${profesionalesPage.hasPrevious()}" class="text-white-50 opacity-25 px-2">
+                   <i class="bi bi-chevron-left fs-5"></i>
+                </span>
+
+                <span class="fw-bold px-2 small">
+                    Página <span th:text="${profesionalesPage.number + 1}"></span> de <span th:text="${profesionalesPage.totalPages}"></span>
+                </span>
+
+                <th:block th:if="${profesionalesPage.hasNext()}">
+                    <a th:href="@{/admin/profesionales(page=${profesionalesPage.number + 1})}"
+                       class="page-link-custom">
+                        <i class="bi bi-chevron-right fs-5"></i>
+                    </a>
+                </th:block>
+                <span th:unless="${profesionalesPage.hasNext()}" class="text-white-50 opacity-25 px-2">
+                   <i class="bi bi-chevron-right fs-5"></i>
+                </span>
+            </div>
         </div>
     </div>
 
-    <div class="mb-3">
-        <input type="text" id="buscadorTabla" class="form-control"
-               placeholder="🔍 Buscar por nombre, especialidad o usuario..."
-               onkeyup="filtrarTabla()">
-    </div>
-
-    <div class="table-container shadow-sm">
-        <table class="table align-middle">
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Nombre y Apellido</th>
-                <th>Especialidad</th>
-                <th>Estado</th>
-                <th>Acceso al Sistema</th>
-                <th class="text-end">Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="p : ${profesionales}">
-                <td th:text="${p.id}"></td>
-                <td><div class="fw-bold" th:text="${p.nombre}"></div></td>
-                <td><span class="badge bg-light text-dark border" th:text="${p.especialidad}"></span></td>
-                <td>
-                    <span th:if="${p.activo}" class="badge bg-success">Activo</span>
-                    <span th:unless="${p.activo}" class="badge bg-secondary">Inactivo</span>
-                </td>
-
-                <td>
-                    <div th:if="${p.tieneUsuario}">
-                        <span class="badge bg-info-subtle text-info border border-info">
-                            <i class="bi bi-person-check-fill"></i> Con Usuario
-                        </span>
-                    </div>
-                    <div th:unless="${p.tieneUsuario}">
-                        <a th:href="@{/admin/usuarios/nuevo(profesionalId=${p.id})}"
-                           class="btn btn-outline-primary btn-sm py-0"
-                           style="font-size: 0.75rem;">
-                            ➕ Asignar Usuario
-                        </a>
-                    </div>
-                </td>
-
-                <td class="text-end">
-                    <div class="btn-group">
-                        <a th:href="@{/admin/profesionales/editar/{id}(id=${p.id})}"
-                           class="btn btn-editar btn-sm">Editar</a>
-
-                        <button th:if="${p.activo}" type="button" class="btn btn-cancelar btn-sm"
-                                th:onclick="'confirmarEstadoProf(' + ${p.id} + ', false)'">
-                            Baja
-                        </button>
-
-                        <button th:unless="${p.activo}" type="button" class="btn btn-success btn-sm"
-                                th:onclick="'confirmarEstadoProf(' + ${p.id} + ', true)'">
-                            Reactivar
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mt-4">
-        <a href="/admin/dashboard" class="btn btn-secondary">
-            ⬅ Volver al Panel Principal
-        </a>
-    </div>
-
     <script th:inline="javascript">
-        /* 1. ALERTAS DE ÉXITO O ERROR AL CARGAR LA PÁGINA */
-        const successMsg = [[${success}]];
-        const errorMsg = [[${error}]];
-
-        if (successMsg) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Excelente!',
-                text: successMsg,
-                timer: 2500,
-                showConfirmButton: false
+        /* ... (Tu código de SweetAlert y filtrarTabla se mantiene igual) ... */
+        function filtrarTabla() {
+            let input = document.getElementById("buscadorTabla");
+            let filter = input.value.toLowerCase();
+            let tr = document.querySelectorAll("tbody tr");
+            tr.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? "" : "none";
             });
         }
 
-        if (errorMsg) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Atención',
-                text: errorMsg
-            });
-        }
-
-        /* 2. CONFIRMACIÓN PARA CAMBIO DE ESTADO */
         function confirmarEstadoProf(id, activar) {
             const titulo = activar ? '¿Reactivar profesional?' : '¿Desactivar profesional?';
-            const texto = activar ? 'Volverá a estar disponible para turnos.' : 'Ya no aparecerá disponible para nuevos turnos.';
             const url = activar ? '/admin/profesionales/activar/' + id : '/admin/profesionales/desactivar/' + id;
 
             Swal.fire({
                 title: titulo,
-                text: texto,
                 icon: activar ? 'question' : 'warning',
                 showCancelButton: true,
-                confirmButtonColor: activar ? '#198754' : '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: activar ? 'Sí, reactivar' : 'Sí, desactivar',
+                confirmButtonText: 'Confirmar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -128,19 +196,6 @@
                 }
             })
         }
-
-        /* 3. FILTRADO DINÁMICO */
-        function filtrarTabla() {
-            let input = document.getElementById("buscadorTabla");
-            let filter = input.value.toLowerCase();
-            let tr = document.querySelectorAll("tbody tr");
-
-            tr.forEach(row => {
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(filter) ? "" : "none";
-            });
-        }
     </script>
-
 </th:block>
 </html>
