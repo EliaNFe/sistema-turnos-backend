@@ -1,122 +1,103 @@
 package com.elian.Sitema_backend_turnos.controller;
 
-import com.elian.Sitema_backend_turnos.dto.ActualizarEstadoDTO;
 import com.elian.Sitema_backend_turnos.dto.ActualizarTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
-import com.elian.Sitema_backend_turnos.model.EstadoTurno;
+import com.elian.Sitema_backend_turnos.mapper.TurnoMapper;
+import com.elian.Sitema_backend_turnos.service.ClienteService;
+import com.elian.Sitema_backend_turnos.service.ProfesionalService;
 import com.elian.Sitema_backend_turnos.service.TurnoService;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
-@RestController
-@RequestMapping("/turnos")
+@Controller
+@RequestMapping("/admin/turnos")
+@PreAuthorize("hasRole('ADMIN')")
 public class TurnoController {
 
     private final TurnoService turnoService;
+    private final ProfesionalService profesionalService;
+    private final ClienteService clienteService;
 
-    public TurnoController(TurnoService turnoService) {
+    public TurnoController(TurnoService turnoService, ProfesionalService profesionalService, ClienteService clienteService) {
         this.turnoService = turnoService;
+        this.profesionalService = profesionalService;
+        this.clienteService = clienteService;
     }
 
-    //  Crear turno
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<TurnoDTO> crear(
-            @Valid @RequestBody CrearTurnoDTO dto) {
+    // Listado de turnos con filtros
+    @GetMapping
+    public String listarTurnos(@RequestParam(required = false) String estado,
+                               @RequestParam(required = false) String profesionalId,
+                               @RequestParam(required = false)
+                               @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fecha,
+                               Model model) {
+        List<TurnoDTO> turnos;
 
-        return ResponseEntity.ok(
-                turnoService.crearTurno(dto)
-        );
+        // Limpieza de parámetros vacíos
+        if (estado != null && estado.isBlank()) estado = null;
+        if (profesionalId != null && profesionalId.isBlank()) profesionalId = null;
+
+        if (estado != null) {
+            turnos = turnoService.buscarPorEstado(estado);
+        } else if (profesionalId != null) {
+            turnos = turnoService.buscarPorProfesional(Long.parseLong(profesionalId));
+        } else if (fecha != null) {
+            turnos = turnoService.buscarPorFecha(fecha);
+        } else {
+            turnos = turnoService.listarTodos();
+        }
+
+        model.addAttribute("turnos", turnos);
+        model.addAttribute("profesionales", profesionalService.listarProfesionales());
+        return "admin-turnos";
     }
 
-    //  Buscar por id
-    @GetMapping("/{id}")
-    public ResponseEntity<TurnoDTO> buscar(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok(
-                turnoService.buscarPorId(id)
-        );
+    // Formulario para crear un nuevo turno (Carga clientes y profesionales activos)
+    @GetMapping("/nuevo")
+    public String nuevoTurno(Model model) {
+        model.addAttribute("turno", new CrearTurnoDTO(null, null, null, null));
+        model.addAttribute("clientes", clienteService.listarClientesActivosSinPaginacion());
+        model.addAttribute("profesionales", profesionalService.listarActivos());
+        return "turno-form";
     }
 
-    //  Agenda profesional
-    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
-    @GetMapping("/profesional/{id}")
-    public ResponseEntity<List<TurnoDTO>> agendaProfesional(
-            @PathVariable Long id,
-            @RequestParam LocalDate fecha,
-            @RequestParam(required = false) LocalTime hora
-    ) {
-
-        return ResponseEntity.ok(
-                turnoService.agendaDelProfesional(id, fecha, hora)
-        );
+    @PostMapping("/nuevo")
+    public String crearTurno(@ModelAttribute CrearTurnoDTO dto, RedirectAttributes redirect) {
+        turnoService.crearTurno(dto);
+        redirect.addFlashAttribute("success", "Turno creado correctamente");
+        return "redirect:/admin/dashboard"; // O a /admin/turnos según prefieras
     }
 
-    //  Agenda cliente
-    @GetMapping("/cliente/{id}")
-    public ResponseEntity<List<TurnoDTO>> agendaCliente(
-            @PathVariable Long id,
-            @RequestParam(required = false) LocalDate fecha,
-            @RequestParam(required = false) EstadoTurno estado
-    ) {
-
-        return ResponseEntity.ok(
-                turnoService.agendaDelCliente(id, fecha, estado)
-        );
+    // Edición de turnos
+    @GetMapping("/editar/{id}")
+    public String editarTurno(@PathVariable Long id, Model model) {
+        TurnoDTO turno = turnoService.buscarPorId(id);
+        ActualizarTurnoDTO dto = TurnoMapper.toActualizarDTO(turno);
+        model.addAttribute("turno", dto);
+        return "admin-turno-editar";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
-    @GetMapping("/mis-turnos")          //para el usuario que tiene como parametro un profesional, asi ese profesional puede ver sus turnos
-    public List<TurnoDTO> misTurnos(
-            @RequestParam LocalDate fecha) {
-
-        return turnoService
-                .agendaDelProfesionalLogueado(fecha);
+    @PostMapping("/editar")
+    public String guardarEdicion(@ModelAttribute ActualizarTurnoDTO dto,
+                                 RedirectAttributes redirect) {
+        turnoService.actualizarTurno(dto.id(), dto);
+        redirect.addFlashAttribute("success", "Turno actualizado correctamente");
+        return "redirect:/admin/turnos";
     }
 
-
-    //  Actualizar turno completo (admin)
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}")
-    public ResponseEntity<TurnoDTO> actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody ActualizarTurnoDTO dto
-    ) {
-
-        return ResponseEntity.ok(
-                turnoService.actualizarTurno(id, dto)
-        );
-    }
-
-    //  Actualizar estado (profesional)
-    @PreAuthorize("hasAnyRole('ADMIN','PROFESIONAL')")
-    @PatchMapping("/{id}/estado")
-    public ResponseEntity<TurnoDTO> actualizarEstado(
-            @PathVariable Long id,
-            @Valid @RequestBody ActualizarEstadoDTO dto
-    ) {
-
-        return ResponseEntity.ok(
-                turnoService.actualizarEstado(id, dto.getEstado())
-        );
-    }
-
-    //  Cancelar turno
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}/cancelar")
-    public ResponseEntity<Void> cancelar(
-            @PathVariable Long id) {
-
+    // Cancelación (Baja)
+    @PostMapping("/cancelar/{id}")
+    public String cancelarTurno(@PathVariable Long id, RedirectAttributes redirect) {
         turnoService.cancelarTurno(id);
-        return ResponseEntity.noContent().build();
+        redirect.addFlashAttribute("success", "Turno cancelado correctamente");
+        return "redirect:/admin/turnos";
     }
 }
-
-

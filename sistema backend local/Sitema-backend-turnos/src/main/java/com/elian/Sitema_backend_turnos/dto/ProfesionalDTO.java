@@ -4,5 +4,6 @@ public record ProfesionalDTO(
         Long id,
         String nombre,
         String especialidad,
-        boolean activo
+        boolean activo,
+        boolean tieneUsuario
 ) {}

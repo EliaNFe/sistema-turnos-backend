@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<th:block th:fragment="contenido">
+
+    <div class="filter-container">
+        <h2 class="fw-bold mb-4">🔑 Crear Nuevo Usuario</h2>
+
+        <form th:action="@{/admin/usuarios/guardar}" method="post" id="userForm">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre de Usuario (Login)</label>
+                    <input type="text" name="username" class="form-control" placeholder="ej: laura.perez" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Rol del Sistema</label>
+                    <select name="rol" id="rolSelect" class="form-select" onchange="toggleProfesionalSelect()" required>
+                        <option value="" disabled selected>Seleccione un rol...</option>
+                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+                    </select>
+                </div>
+
+                <div class="col-md-6" id="profesionalDiv" style="display: none;">
+                    <label class="form-label text-primary fw-bold">Vincular a Profesional</label>
+                    <select name="profesionalId" id="profesionalSelect" class="form-select border-primary">
+                        <option value="">-- Seleccionar Profesional --</option>
+                        <option th:each="p : ${profesionales}"
+                                th:value="${p.id}"
+                                th:selected="${p.id == idPreseleccionado}"
+                                th:text="${p.nombre} + ' (' + ${p.especialidad} + ')'"></option>
+                    </select>
+                    <small class="text-muted">Obligatorio para el rol PROFESIONAL</small>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary px-5">Crear Usuario</button>
+                <a href="/admin/profesionales" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleProfesionalSelect() {
+            const rol = document.getElementById('rolSelect').value;
+            const divProf = document.getElementById('profesionalDiv');
+            divProf.style.display = (rol === 'PROFESIONAL') ? 'block' : 'none';
+        }
+
+        // Lógica para detectar si venimos desde la tabla de profesionales
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const profId = urlParams.get('profesionalId');
+
+            if (profId) {
+                // Si hay ID en la URL, asumimos que es Rol Profesional y mostramos el div
+                document.getElementById('rolSelect').value = 'PROFESIONAL';
+                toggleProfesionalSelect();
+            }
+        });
+    </script>
+
+</th:block>
+</html>

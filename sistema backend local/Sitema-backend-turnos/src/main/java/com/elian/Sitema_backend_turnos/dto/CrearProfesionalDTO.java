@@ -7,5 +7,5 @@ public record CrearProfesionalDTO(
         @NotBlank
         String nombre,
         @NotBlank
-                String especialidad
+        String especialidad
 ) {}

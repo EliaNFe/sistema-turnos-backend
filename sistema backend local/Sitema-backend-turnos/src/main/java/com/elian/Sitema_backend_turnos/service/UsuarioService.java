@@ -28,27 +28,26 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public boolean tieneUsuarioAsociado(Long profesionalId) {
+        if (profesionalId == null) return false;
+        return usuarioRepository.existsByProfesionalId(profesionalId);
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     public Usuario crearUsuario(CrearUsuarioDTO dto) {
+        //  Validación de integridad de negocio
+        if (Rol.PROFESIONAL.equals(dto.rol()) && dto.profesionalId() == null) {
+            throw new IllegalArgumentException("Un usuario con rol PROFESIONAL debe tener un Profesional asignado.");
+        }
 
         Usuario usuario = new Usuario();
-
         usuario.setUsername(dto.username());
-        usuario.setPassword(
-                passwordEncoder.encode(dto.password())
-        );
-
-        usuario.setRol(
-                Rol.valueOf(String.valueOf(dto.rol()))
-        );
+        usuario.setPassword(passwordEncoder.encode(dto.password()));
+        usuario.setRol(dto.rol());
 
         if (dto.profesionalId() != null) {
-
-            Profesional profesional =
-                    profesionalRepository.findById(dto.profesionalId())
-                            .orElseThrow(() ->
-                                    new ProfesionalNotFoundException(dto.profesionalId()));
-
+            Profesional profesional = profesionalRepository.findById(dto.profesionalId())
+                    .orElseThrow(() -> new ProfesionalNotFoundException(dto.profesionalId()));
             usuario.setProfesional(profesional);
         }
 

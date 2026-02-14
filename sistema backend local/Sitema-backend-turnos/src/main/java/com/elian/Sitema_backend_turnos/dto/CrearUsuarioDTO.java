@@ -6,5 +6,5 @@ public record CrearUsuarioDTO(
         String username,
         String password,
         Rol rol,
-        Long profesionalId
+        Long profesionalId //puede ser null si es rol admin
 ) {}
