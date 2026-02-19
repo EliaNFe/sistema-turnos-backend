@@ -2,6 +2,7 @@ package com.elian.Sitema_backend_turnos.service;
 
 import com.elian.Sitema_backend_turnos.dto.ActualizarTurnoDTO;
 import com.elian.Sitema_backend_turnos.dto.CrearTurnoDTO;
+import com.elian.Sitema_backend_turnos.dto.CrearTurnoWebDTO;
 import com.elian.Sitema_backend_turnos.dto.TurnoDTO;
 import com.elian.Sitema_backend_turnos.exception.ClientenotFoundException;
 import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
@@ -13,6 +14,7 @@ import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
 import com.elian.Sitema_backend_turnos.repository.TurnoRepository;
 import com.elian.Sitema_backend_turnos.repository.UsuarioRepository;
 import org.springframework.cglib.core.Local;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,11 +37,12 @@ public class TurnoService {
     private final SecurityService securityService;
     private final TurnoMapper turnoMapper;
     private final UsuarioRepository usuarioRepository;
+    private final ProfesionalService profesionalService;
 
     public TurnoService(
             TurnoRepository turnoRepository,
             ClienteRepository clienteRepository,
-            ProfesionalRepository profesionalRepository, SecurityService securityService, TurnoMapper turnoMapper, UsuarioRepository usuarioRepository
+            ProfesionalRepository profesionalRepository, SecurityService securityService, TurnoMapper turnoMapper, UsuarioRepository usuarioRepository, ProfesionalService profesionalService
     ) {
         this.turnoRepository = turnoRepository;
         this.clienteRepository = clienteRepository;
@@ -46,6 +50,7 @@ public class TurnoService {
         this.securityService = securityService;
         this.turnoMapper = turnoMapper;
         this.usuarioRepository = usuarioRepository;
+        this.profesionalService = profesionalService;
     }
 
     @Transactional
@@ -258,15 +263,152 @@ public class TurnoService {
         }
     }
 
+    public List<LocalTime> listarHorariosDisponiblesGlobal(LocalDate fecha) {
+
+        List<LocalTime> disponibles = new ArrayList<>();
+
+        LocalTime inicio = LocalTime.of(8, 0);
+        LocalTime fin = LocalTime.of(20, 0);
+
+        List<Profesional> activos = profesionalRepository.findAll()
+                .stream()
+                .filter(Profesional::isActivo)
+                .toList();
+
+        int cantidadProfesionales = activos.size();
+
+        if (cantidadProfesionales == 0) {
+            return List.of();
+        }
+
+        List<EstadoTurno> estadosQueBloquean = List.of(
+                EstadoTurno.PENDIENTE,
+                EstadoTurno.CONFIRMADO
+        );
+
+        List<Turno> turnosDelDia =
+                turnoRepository.findByFechaAndEstadoIn(fecha, estadosQueBloquean);
+
+
+        while (inicio.isBefore(fin)) {
+
+            final LocalTime horaActual = inicio;
+
+            long ocupados = turnosDelDia.stream()
+                    .filter(t -> t.getHora().equals(horaActual))
+                    .count();
+
+            if (ocupados < cantidadProfesionales) {
+                disponibles.add(horaActual);
+            }
+
+            inicio = inicio.plusMinutes(30);
+        }
+
+        return disponibles;
+    }
+
+    @Transactional
+    public void registrarSolicitudWeb(CrearTurnoWebDTO dto) {
+        // Si el usuario marco inexistnte pero el DNI ya está...
+        Optional<Cliente> existente = clienteRepository.findByDocumento(dto.documento());
+
+        // Si mando nombre que es nuevo pero el DNI ya existe:
+        if (dto.nombre() != null && !dto.nombre().isBlank() && existente.isPresent()) {
+            throw new IllegalArgumentException("Ya figurás en nuestro sistema. Por favor, seleccioná 'Ya soy cliente' e ingresá solo tu DNI.");
+        }
+        LocalDate hoy = LocalDate.now();
+        LocalTime ahora = LocalTime.now();
+
+        if (dto.fecha() == null || dto.hora() == null) {
+            throw new IllegalArgumentException("Fecha y hora son obligatorias");
+        }
+
+        if (dto.fecha().isBefore(hoy) ||
+                (dto.fecha().isEqual(hoy) && dto.hora().isBefore(ahora))) {
+            throw new IllegalArgumentException("No se puede solicitar un turno en el pasado");
+        }
+
+        if (dto.hora().isBefore(LocalTime.of(8, 0)) ||
+                dto.hora().isAfter(LocalTime.of(20, 0))) {
+            throw new IllegalStateException("Horario fuera del rango laboral");
+        }
+
+        Cliente cliente = clienteRepository.findByDocumento(dto.documento())
+                .orElseGet(() -> {
+                    Cliente nuevo = new Cliente();
+                    nuevo.setNombre(dto.nombre());
+                    nuevo.setApellido(dto.apellido());
+                    nuevo.setDocumento(dto.documento());
+                    nuevo.setTelefono(dto.telefono());
+                    nuevo.setEmail(dto.email());
+                    nuevo.setActivo(true);
+                    return clienteRepository.save(nuevo);
+                });
+
+        Profesional profesionalDisponible =
+                profesionalService.buscarDisponible(dto.fecha(), dto.hora());
+
+        Turno turno = new Turno();
+        turno.setCliente(cliente);
+        turno.setProfesional(profesionalDisponible);
+        turno.setFecha(dto.fecha());
+        turno.setHora(dto.hora());
+        turno.setEstado(EstadoTurno.SOLICITADO);
+
+        try {
+            turnoRepository.save(turno);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("El horario acaba de ser tomado. Intente nuevamente.");
+        }
+    }
+
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public TurnoDTO confirmarSolicitud(Long turnoId) {
+
+        Turno turno = turnoRepository.findById(turnoId)
+                .orElseThrow(() -> new TurnoNotFoundException(turnoId));
+
+        if (turno.getEstado() != EstadoTurno.SOLICITADO) {
+            throw new IllegalStateException("El turno no está en estado SOLICITADO");
+        }
+
+        List<Profesional> activos = profesionalRepository.findAll()
+                .stream()
+                .filter(Profesional::isActivo)
+                .toList();
+
+        for (Profesional p : activos) {
+
+            boolean ocupado = turnoRepository
+                    .findByProfesionalIdAndFechaAndHora(
+                            p.getId(),
+                            turno.getFecha(),
+                            turno.getHora()
+                    ).isPresent();
+
+            if (!ocupado) {
+                turno.setProfesional(p);
+                turno.setEstado(EstadoTurno.PENDIENTE);
+                return turnoMapper.toDTO(turnoRepository.save(turno));
+            }
+        }
+
+        throw new IllegalStateException("No hay profesionales disponibles");
+    }
+
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public TurnoDTO cancelarTurno(Long id) {
         Turno turno = turnoRepository.findById(id)
                 .orElseThrow(() -> new TurnoNotFoundException(id));
 
-        if (turno.getEstado() != EstadoTurno.PENDIENTE && turno.getEstado() != EstadoTurno.CONFIRMADO) {
+        if (turno.getEstado() != EstadoTurno.PENDIENTE && turno.getEstado() != EstadoTurno.CONFIRMADO && turno.getEstado() != EstadoTurno.SOLICITADO) {
             throw new IllegalStateException(
-                    "No se puede cancelar un turno que no está pendiente o confirmado"
+                    "No se puede cancelar un turno que no está pendiente, confirmado o solicitado"
             );
         }
 

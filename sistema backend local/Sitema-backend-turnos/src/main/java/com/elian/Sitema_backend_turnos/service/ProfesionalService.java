@@ -7,10 +7,13 @@ import com.elian.Sitema_backend_turnos.exception.ProfesionalNotFoundException;
 import com.elian.Sitema_backend_turnos.mapper.ProfesionalMapper;
 import com.elian.Sitema_backend_turnos.model.Profesional;
 import com.elian.Sitema_backend_turnos.repository.ProfesionalRepository;
+import com.elian.Sitema_backend_turnos.repository.TurnoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,11 +23,13 @@ public class ProfesionalService {
     private final ProfesionalRepository profesionalRepository;
     private final ProfesionalMapper ProfesionalMapper;
     private final UsuarioService usuarioService;
+    private final TurnoRepository turnoRepository;
 
-    public ProfesionalService(ProfesionalRepository profesionalRepository, ProfesionalMapper profesionalMapper, UsuarioService usuarioService) {
+    public ProfesionalService(ProfesionalRepository profesionalRepository, ProfesionalMapper profesionalMapper, UsuarioService usuarioService, TurnoRepository turnoRepository) {
         this.profesionalRepository = profesionalRepository;
         ProfesionalMapper = profesionalMapper;
         this.usuarioService = usuarioService;
+        this.turnoRepository = turnoRepository;
     }
 
     public ProfesionalDTO crearProfesional(CrearProfesionalDTO dto) {
@@ -43,6 +48,27 @@ public class ProfesionalService {
                 profesionalRepository.save(profesional)
         );
 
+    }
+
+    public Profesional buscarDisponible(LocalDate fecha, LocalTime hora) {
+
+        List<Profesional> activos = profesionalRepository.findByActivoTrue();
+
+        for (Profesional profesional : activos) {
+
+            boolean ocupado = turnoRepository
+                    .findByProfesionalIdAndFechaAndHora(
+                            profesional.getId(),
+                            fecha,
+                            hora
+                    ).isPresent();
+
+            if (!ocupado) {
+                return profesional;
+            }
+        }
+
+        return null;
     }
 
 

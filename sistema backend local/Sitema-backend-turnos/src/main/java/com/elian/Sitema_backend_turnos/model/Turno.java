@@ -25,7 +25,7 @@ public class Turno {
     private Cliente cliente;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "profesional_id")
+    @JoinColumn(name = "profesional_id", nullable = false)
     private Profesional profesional;
 
     @Column(nullable = false)

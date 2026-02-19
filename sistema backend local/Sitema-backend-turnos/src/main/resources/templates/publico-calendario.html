@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Turnos | Sistema Elian</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root { --primary: #6366f1; --primary-hover: #4f46e5; --bg: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #1e293b; }
+        .main-card { background: white; border-radius: 24px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.04); overflow: hidden; }
+        .fc { --fc-border-color: #f1f5f9; --fc-button-bg-color: var(--primary); --fc-button-border-color: var(--primary); }
+        .fc .fc-toolbar-title { font-size: 1.25rem; font-weight: 700; }
+        .fc-daygrid-day:hover { background-color: #f5f3ff !important; cursor: pointer; }
+        .time-chip {
+            border: 2px solid #f1f5f9; border-radius: 12px; padding: 12px;
+            text-align: center; cursor: pointer; transition: all 0.2s; font-weight: 600;
+        }
+        .time-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .time-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-primary { background-color: var(--primary); border: none; padding: 12px; border-radius: 12px; font-weight: 600; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .step-badge { width: 30px; height: 30px; background: #eef2ff; color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-700">Reserva tu turno online</h1>
+        <p class="text-muted">Seleccioná el día y horario que mejor te quede.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="main-card p-4">
+                <div class="mb-3 d-flex align-items-center">
+                    <span class="step-badge">1</span>
+                    <h5 class="mb-0 fw-600">Elegí una fecha</h5>
+                </div>
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="main-card p-4 h-100">
+
+                <div id="no-date-selected" class="text-center py-5">
+                    <i class="bi bi-calendar2-week text-light-emphasis" style="font-size: 4rem;"></i>
+                    <p class="mt-3">Tocá un día en el calendario para ver disponibilidad</p>
+                </div>
+
+                <div id="section-horarios" style="display: none;">
+                    <div class="mb-4 d-flex align-items-center">
+                        <span class="step-badge">2</span>
+                        <h5 class="mb-0 fw-600">Horarios para el <span id="fecha-label" class="text-primary"></span></h5>
+                    </div>
+                    <div id="container-horarios" class="row g-2 mb-4">
+                    </div>
+                </div>
+
+                <div id="section-datos" style="display: none;">
+                    <hr class="my-4">
+                    <div class="mb-3 d-flex align-items-center">
+                        <span class="step-badge">3</span>
+                        <h5 class="mb-0 fw-600">Completá tus datos</h5>
+                    </div>
+
+                    <div class="btn-group w-100 mb-4" role="group">
+                        <input type="radio" class="btn-check" name="tipoCli" id="nuevo" checked>
+                        <label class="btn btn-outline-primary" for="nuevo">Soy Nuevo</label>
+                        <input type="radio" class="btn-check" name="tipoCli" id="existente">
+                        <label class="btn btn-outline-primary" for="existente">Ya soy cliente</label>
+                    </div>
+
+                    <form id="reservaForm" th:action="@{/reservar/confirmar}" method="post">
+                        <input type="hidden" name="fecha" id="inputFecha">
+                        <input type="hidden" name="hora" id="inputHora">
+
+                        <div id="inputs-nuevos">
+                            <div class="mb-3"><input type="text" name="nombre" class="form-control" placeholder="Nombre"></div>
+                            <div class="mb-3"><input type="text" name="apellido" class="form-control" placeholder="Apellido"></div>
+                            <div class="mb-3"><input type="email" name="email" class="form-control" placeholder="Email"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="text" name="documento" class="form-control" placeholder="DNI / Documento" required>
+                        </div>
+                        <div class="mb-3" id="div-telefono">
+                            <input type="text" name="telefono" class="form-control" placeholder="Teléfono de contacto">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3">
+                            <i class="bi bi-send me-2"></i>Solicitar Turno
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:inline="javascript">
+    // 1. Mostrar alertas de Spring (si existen)
+    const successMsg = [[${success}]];
+    const errorMsg = [[${error}]];
+    if (successMsg) Swal.fire({ icon: 'success', title: '¡Pedido enviado!', text: successMsg, confirmButtonColor: '#6366f1' });
+    if (errorMsg) Swal.fire({ icon: 'error', title: 'Oops...', text: errorMsg });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            selectable: true,
+            validRange: { start: new Date().toISOString().split('T')[0] },
+            dateClick: function(info) {
+                cargarHorarios(info.dateStr);
+            }
+        });
+        calendar.render();
+
+        // Lógica Toggle Cliente Nuevo/Existente
+        document.getElementById('existente').addEventListener('change', () => {
+            document.getElementById('inputs-nuevos').style.display = 'none';
+            document.getElementById('div-telefono').style.display = 'none';
+        });
+        document.getElementById('nuevo').addEventListener('change', () => {
+            document.getElementById('inputs-nuevos').style.display = 'block';
+            document.getElementById('div-telefono').style.display = 'block';
+        });
+    });
+
+    async function cargarHorarios(fecha) {
+        document.getElementById('fecha-label').innerText = fecha;
+        document.getElementById('inputFecha').value = fecha;
+
+        const resp = await fetch(`/reservar/horarios?fecha=${fecha}`);
+        const horarios = await resp.json();
+
+        const container = document.getElementById('container-horarios');
+        container.innerHTML = '';
+
+        document.getElementById('no-date-selected').style.display = 'none';
+        document.getElementById('section-horarios').style.display = 'block';
+        document.getElementById('section-datos').style.display = 'none';
+
+        if (horarios.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center text-danger p-4">No hay horarios disponibles para este día.</div>';
+        } else {
+            horarios.forEach(h => {
+                const col = document.createElement('div');
+                col.className = 'col-4';
+                col.innerHTML = `<div class="time-chip" onclick="seleccionarHora(this, '${h}')">${h.substring(0,5)}</div>`;
+                container.appendChild(col);
+            });
+        }
+    }
+
+    function seleccionarHora(elemento, hora) {
+        document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
+        elemento.classList.add('active');
+        document.getElementById('inputHora').value = hora;
+        document.getElementById('section-datos').style.display = 'block';
+    }
+</script>
+</body>
+</html>

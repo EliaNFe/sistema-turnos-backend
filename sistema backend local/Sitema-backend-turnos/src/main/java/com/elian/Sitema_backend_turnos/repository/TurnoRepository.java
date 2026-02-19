@@ -30,6 +30,8 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByProfesionalIdAndFechaOrderByHoraAsc(Long profesionalId, LocalDate fecha);
     List<Turno> findByProfesionalIdAndClienteNombreOrderByFechaDesc(Long profesionalId, String clienteNombre);
     List<Turno> findByProfesionalIdOrderByFechaDescHoraAsc(Long profesionalId);
+    List<Turno> findByFechaAndEstadoIn(LocalDate fecha, List<EstadoTurno> estados);
+
     @Query("""
 SELECT t FROM Turno t
 WHERE (:estado IS NULL OR t.estado = :estado)

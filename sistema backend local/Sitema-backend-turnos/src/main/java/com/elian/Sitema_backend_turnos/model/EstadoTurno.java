@@ -4,5 +4,6 @@ public enum EstadoTurno {
     PENDIENTE,
     CONFIRMADO,
     CANCELADO,
-    COMPLETADO
+    COMPLETADO,
+    SOLICITADO      //este es para los turnos solicitados por la web
 }

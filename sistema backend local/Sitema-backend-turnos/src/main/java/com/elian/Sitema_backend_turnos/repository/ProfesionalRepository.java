@@ -18,7 +18,7 @@ public interface ProfesionalRepository extends JpaRepository<Profesional, Long> 
     boolean existsByNombreIgnoreCaseAndEspecialidadIgnoreCase(String nombre, String especialidad);
     @Query("SELECT p FROM Profesional p WHERE (:nombre IS NULL OR p.nombre LIKE %:nombre%)")
     Page<Profesional> buscarProfesionales(@Param("nombre") String nombre, Pageable pageable);
-
+    List<Profesional> findByActivoTrue();
 
 
 }
