@@ -4,6 +4,10 @@ Gestión administrativa Full-Stack diseñada para optimizar la agenda de servici
 
 
 
+Panel admin o profesional en después del login, sino para los clientes esta el /reservar para que reserven un turno y en panel admin se confirma
+
+
+
 🚀 Funcionalidades Clave
 
 🔑 Control de Acceso (RBAC)

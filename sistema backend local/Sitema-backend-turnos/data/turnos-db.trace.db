@@ -4461,3 +4461,6 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: C:/Users/Elian/D
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 55 more
+2026-02-21 00:14:47.811196-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: El objeto ya está cerrado
+The object is already closed [90007-232]
